@@ -1,5 +1,5 @@
-purescript-chord-builder
-========================
+chord-builder
+=============
 
 __Work In Progress__
 

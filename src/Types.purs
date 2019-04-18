@@ -9,12 +9,10 @@ type FingerPosition = Int
 -- | a fretboard is represented as an array of finger positions
 type Fretboard = Array FingerPosition
 
--- | the number of frets to display
-fretCount :: Int
-fretCount = 7
+data ExportFormat =
+    PNG
+  | JPG
 
--- | the number of strings to display
--- | (for a guitar, this is obviously 6
--- | but we may want, for example, to represent ukuleles)
-stringCount :: Int
-stringCount = 6
+toMimeType :: ExportFormat -> String
+toMimeType PNG = "image/png;base64"
+toMimeType JPG = "image/jpeg"

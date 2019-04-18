@@ -1,16 +1,24 @@
 -- | draw the fretboard
-module Graphics (chordDisplay) where
+module Graphics (canvasHeight, canvasWidth, chordDisplay) where
 
 import Prelude
 
 import Color (Color, rgb, black)
 import Data.Array (mapWithIndex, range)
 import Data.Foldable (foldl)
-import Data.Int (toNumber)
+import Data.Int (round, toNumber)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor)
 
 gray :: Color
 gray = rgb 160 160 160
+
+canvasWidth :: Int
+canvasWidth =
+  round $ neckWidth + (2.0 * nutxOffset)
+
+canvasHeight :: Int
+canvasHeight =
+  round $ nutDepth + nutyOffset + stringLength + cellSize
 
 -- | this is the basic size of a cell bounded by 2 frets and 2 strings
 -- | and thus represents a unit of scalability
