@@ -1,0 +1,17 @@
+{
+  "name": "chord-builder",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-prelude": "^4.1.0",
+    "purescript-drawing": "^4.0.0",
+    "purescript-halogen": "https://github.com/slamdata/purescript-halogen.git#5.0.0-rc.1"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^4.0.0"
+  }
+}
