@@ -3,11 +3,12 @@ module Graphics (canvasHeight, canvasWidth, chordDisplay) where
 
 import Prelude
 
-import Color (Color, rgb, black)
+import Color (Color, rgb, black, white)
 import Data.Array (mapWithIndex, range)
 import Data.Foldable (foldl)
 import Data.Int (round, toNumber)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor)
+import Types (Fretboard)
 
 gray :: Color
 gray = rgb 160 160 160
@@ -115,6 +116,23 @@ strings =
   in
     foldl f mempty stringNums
 
+-- | an open xircle above the nut represents an open string
+openString :: Int -> Drawing
+openString stringNum =
+  let
+    outerRadius = 0.5 * fretDepth / 2.0
+    innerRadius = outerRadius - 2.0
+    xpos = nutxOffset + (toNumber stringNum * stringSeparation)
+    ypos = nutyOffset - (outerRadius + 4.0)
+  in
+    filled
+      (fillColor black)
+      (circle xpos ypos outerRadius)
+    <>
+      filled
+        (fillColor white)
+        (circle xpos ypos innerRadius)
+
 -- | draw a single finger on a string
 finger :: Int -> Int -> Drawing
 finger stringNum fretNum  =
@@ -124,14 +142,17 @@ finger stringNum fretNum  =
     ypos = nutDepth + nutyOffset + (toNumber fretNum * fretDepth) - (radius + 2.0)
   in
     if
-      (fretNum < 1) || (fretNum >= fretCount) ||
+      (fretNum < 0) || (fretNum >= fretCount) ||
       (stringNum < 0) || (stringNum >= stringCount)
     then
       mempty
     else
-      filled
-        (fillColor black)
-        (circle xpos ypos radius)
+      if (fretNum == 0) then
+          openString stringNum
+      else
+        filled
+          (fillColor black)
+          (circle xpos ypos radius)
 
 -- | draw the complete fingering
 fingering :: Array Int -> Drawing
@@ -142,6 +163,6 @@ chordDisplay :: Drawing
 chordDisplay =
   nut <> frets <> strings <> (fingering dChord)
 
-dChord :: Array Int
+dChord :: Fretboard
 dChord =
   [2,0,0,2,3,2]
