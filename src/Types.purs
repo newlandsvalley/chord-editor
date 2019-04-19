@@ -6,13 +6,25 @@ module Types where
 -- | N > 0  : string is fretted at this position
 type FingerPosition = Int
 
--- | a fretboard is represented as an array of finger positions
-type Fretboard = Array FingerPosition
+-- | fingering is represented as an array of finger positions
+type Fingering = Array FingerPosition
 
+-- | we only export to PNG and JPG at the moment
 data ExportFormat =
     PNG
   | JPG
 
+-- | the MIME type for each export format
 toMimeType :: ExportFormat -> String
 toMimeType PNG = "image/png;base64"
 toMimeType JPG = "image/jpeg"
+
+-- | just a sample D chord
+dChord :: Fingering
+dChord =
+  [2,0,0,2,3,2]
+
+-- | all the open strings
+openStrings :: Fingering
+openStrings =
+  [0,0,0,0,0,0]

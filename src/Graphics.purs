@@ -1,5 +1,5 @@
 -- | draw the fretboard
-module Graphics (canvasHeight, canvasWidth, chordDisplay) where
+module Graphics (canvasHeight, canvasWidth, displayChord) where
 
 import Prelude
 
@@ -8,7 +8,7 @@ import Data.Array (mapWithIndex, range)
 import Data.Foldable (foldl)
 import Data.Int (round, toNumber)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor)
-import Types (Fretboard)
+import Types (Fingering)
 
 gray :: Color
 gray = rgb 160 160 160
@@ -159,10 +159,7 @@ fingering :: Array Int -> Drawing
 fingering fingerSpec =
   foldl (<>) mempty $ mapWithIndex finger fingerSpec
 
-chordDisplay :: Drawing
-chordDisplay =
-  nut <> frets <> strings <> (fingering dChord)
-
-dChord :: Fretboard
-dChord =
-  [2,0,0,2,3,2]
+-- | display the enire choords hape described by the fingering 
+displayChord :: Fingering -> Drawing
+displayChord chord =
+  nut <> frets <> strings <> (fingering chord)
