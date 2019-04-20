@@ -5,17 +5,17 @@ module Graphics
   , displayChord
   , fingeredString) where
 
-import Graphics.Drawing.Font
+import Graphics.Drawing.Font (bold, font, sansSerif)
 import Prelude
 
 import Color (Color, rgb, black, white)
-import Control.Comonad.Store (StoreT(..))
 import Data.Array (mapWithIndex, range)
 import Data.Foldable (foldl)
 import Data.Int (floor, round, toNumber)
+import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Math (pi)
-import Types (Fingering, FingeredString, MouseCoordinates, open, silent)
+import Types (Fingering, FingeredString, MouseCoordinates, open)
 
 gray :: Color
 gray = rgb 160 160 160
@@ -42,9 +42,11 @@ nutDepth :: Number
 nutDepth =
   cellSize / 3.0
 
+{-}
 titlexOffset :: Number
 titlexOffset =
   (neckWidth / 2.0)
+-}
 
 titleyOffset :: Number
 titleyOffset =
@@ -221,12 +223,27 @@ fingeredString coords =
       , fretNumber  : min fretNumber fretCount
       }
 
+-- | display the chord diagram title, but constrain it to live within
+-- | the width of the nut, roughly centered
 title :: String -> Drawing
 title name =
   let
     theFont = font sansSerif 35 bold
+    -- we seem to have space for at most 9 characters so truncate the name
+    -- where necessary
+    displayName =
+      if (length name > 9) then
+        dropRight (length name - 9) name
+      else
+        name
+    -- rough heuristic for the width in pixels
+    textWidth = (cellSize / 1.8) * (toNumber $ length displayName)
+    -- work out the title x offset
+    unsafeTitlexOffset = nutxOffset + (neckWidth / 2.0) - (textWidth / 2.0)
+    -- but restrict it to start at the nut start for long strings
+    titlexOffset = max unsafeTitlexOffset nutxOffset
   in
-    text theFont titlexOffset titleyOffset (fillColor black) name
+    text theFont titlexOffset titleyOffset (fillColor black) displayName
 
 
 -- | display the enire choords hape described by the fingering
