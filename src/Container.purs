@@ -21,7 +21,8 @@ import Partial.Unsafe (unsafePartial)
 import Data.Int (toNumber)
 import Graphics (canvasHeight, canvasWidth, displayChord, fingeredString)
 import Export (exportAs)
-import Types (ExportFormat(..), Fingering, FingeredString, openStrings, toMimeType)
+import Types (ExportFormat(..), Fingering, FingeredString, open, silent,
+          openStrings, toMimeType)
 
 import Debug.Trace (spy)
 
@@ -147,8 +148,10 @@ component =
         bar = spy "Y:" y
         -}
         fstring = fingeredString {x,y}
+        {-}
         foo = spy "string:" fstring.stringNumber
         bar = spy "fret:" fstring.fretNumber
+        -}
         newFingering = alterFingering fstring state.fingering
       _ <- H.modify (\st -> st { fingering = newFingering })
       _ <- handleQuery (DisplayFingering unit)
@@ -215,15 +218,15 @@ component =
       newFret =
         -- if we're unfretted (fret 0) then toggle between open and silent
         if (fingeredString.fretNumber == 0) then
-          if (currentFret == 0) then
-            -1
+          if (currentFret == open) then
+            silent
           else
-            0
+            open
         else
           -- if we're at a real fret, make open if it's occupied already
           -- else populate the new fret
           if (fingeredString.fretNumber == currentFret) then
-            0
+            open
           else
             fingeredString.fretNumber
 

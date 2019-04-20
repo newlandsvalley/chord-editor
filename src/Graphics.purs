@@ -13,7 +13,7 @@ import Data.Foldable (foldl)
 import Data.Int (floor, round, toNumber)
 import Math (pi)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor)
-import Types (Fingering, FingeredString, MouseCoordinates)
+import Types (Fingering, FingeredString, MouseCoordinates, open, silent)
 
 gray :: Color
 gray = rgb 160 160 160
@@ -140,8 +140,8 @@ openString stringNum =
 
 {-}
 -- | a cross above the nut indicates a string which should not be played
-deadString :: Int -> Drawing
-deadString stringNum =
+silentString :: Int -> Drawing
+silentString stringNum =
   let
     barLength = 0.25 * stringSeparation
     barWidth = barLength / 3.0
@@ -164,6 +164,8 @@ deadString stringNum =
 -}
 
 -- | draw a single finger on a string
+-- | at the moment, silent strings have no canvas widget to represent them
+-- | (such as a cross) they are thus marked by an absence..
 finger :: Int -> Int -> Drawing
 finger stringNum fretNum  =
   let
@@ -172,11 +174,11 @@ finger stringNum fretNum  =
     ypos = nutDepth + nutyOffset + (toNumber fretNum * fretDepth) - (radius + 2.0)
   in
     if
-      (fretNum < 0) || (fretNum >= fretCount) ||
+      (fretNum < 0) || (fretNum > fretCount) ||
       (stringNum < 0) || (stringNum >= stringCount)
     then
       mempty
-    else if (fretNum == 0) then
+    else if (fretNum == open) then
       openString stringNum
     else
         filled

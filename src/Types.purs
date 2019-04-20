@@ -28,6 +28,14 @@ type MouseCoordinates =
   , y :: Number
   }
 
+-- | an open string
+open :: FingerPosition
+open = 0
+
+-- | a silent (unplayed) string
+silent :: FingerPosition
+silent = -1
+
 -- | the MIME type for each export format
 toMimeType :: ExportFormat -> String
 toMimeType PNG = "image/png;base64"
@@ -41,4 +49,5 @@ dChord =
 -- | all the open strings
 openStrings :: Fingering
 openStrings =
-  [0,0,0,0,0,0]
+  [open,open,open,open,open,open]
+  -- [0,0,0,0,0,0]
