@@ -1,14 +1,19 @@
 -- | draw the fretboard
-module Graphics (canvasHeight, canvasWidth, displayChord) where
+module Graphics
+  ( canvasHeight
+  , canvasWidth
+  , displayChord
+  , fingeredString) where
 
 import Prelude
 
 import Color (Color, rgb, black, white)
 import Data.Array (mapWithIndex, range)
 import Data.Foldable (foldl)
-import Data.Int (round, toNumber)
+import Data.Int (floor, round, toNumber)
+import Math (pi)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor)
-import Types (Fingering)
+import Types (Fingering, FingeredString, MouseCoordinates)
 
 gray :: Color
 gray = rgb 160 160 160
@@ -116,7 +121,7 @@ strings =
   in
     foldl f mempty stringNums
 
--- | an open xircle above the nut represents an open string
+-- | an open circle above the nut represents an open string
 openString :: Int -> Drawing
 openString stringNum =
   let
@@ -133,6 +138,31 @@ openString stringNum =
         (fillColor white)
         (circle xpos ypos innerRadius)
 
+{-}
+-- | a cross above the nut indicates a string which should not be played
+deadString :: Int -> Drawing
+deadString stringNum =
+  let
+    barLength = 0.25 * stringSeparation
+    barWidth = barLength / 3.0
+    outerRadius = 0.5 * fretDepth / 2.0
+    xpos = nutxOffset +
+           (toNumber stringNum * stringSeparation)
+           - barLength
+    ypos = nutyOffset - (outerRadius + 4.0)
+  in
+      filled
+        (fillColor black)
+        (rectangle xpos ypos (2.0 * barLength) barWidth)
+      <>
+        filled
+          (fillColor black)
+          (rectangle (xpos - 2.0 + barLength)
+                     (ypos + 2.0 - barLength)
+                     barWidth
+                     (2.0 * barLength))
+-}
+
 -- | draw a single finger on a string
 finger :: Int -> Int -> Drawing
 finger stringNum fretNum  =
@@ -146,10 +176,9 @@ finger stringNum fretNum  =
       (stringNum < 0) || (stringNum >= stringCount)
     then
       mempty
+    else if (fretNum == 0) then
+      openString stringNum
     else
-      if (fretNum == 0) then
-          openString stringNum
-      else
         filled
           (fillColor black)
           (circle xpos ypos radius)
@@ -159,7 +188,29 @@ fingering :: Array Int -> Drawing
 fingering fingerSpec =
   foldl (<>) mempty $ mapWithIndex finger fingerSpec
 
--- | display the enire choords hape described by the fingering 
+
+-- | work out a fingered string from the mouse click coordinates
+fingeredString :: MouseCoordinates -> FingeredString
+fingeredString coords =
+  let
+    stringNumber =
+      if coords.x < (nutxOffset / 2.0) then
+        0
+      else
+        floor $ (coords.x - (nutxOffset / 2.0)) / stringSeparation
+
+    fretNumber =
+      if coords.y < (nutDepth + nutyOffset) then
+        0
+      else
+        (floor $ (coords.y - (nutDepth + nutyOffset)) / fretDepth) + 1
+    in
+      { stringNumber : min stringNumber (stringCount - 1)
+      , fretNumber  : min fretNumber fretCount
+      }
+
+
+-- | display the enire choords hape described by the fingering
 displayChord :: Fingering -> Drawing
 displayChord chord =
   nut <> frets <> strings <> (fingering chord)

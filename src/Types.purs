@@ -1,5 +1,7 @@
 module Types where
 
+import Prelude (negate)
+
 -- | a finger position on a string
 -- | n < 0  : String is silent
 -- | n == 0 : Open string is sounded
@@ -13,6 +15,18 @@ type Fingering = Array FingerPosition
 data ExportFormat =
     PNG
   | JPG
+
+-- | a fingered string
+type FingeredString =
+  { stringNumber :: Int
+  , fretNumber  :: FingerPosition
+  }
+
+-- | the coordinates of a mouse click relative to the top left of the canvas
+type MouseCoordinates =
+  { x :: Number
+  , y :: Number
+  }
 
 -- | the MIME type for each export format
 toMimeType :: ExportFormat -> String

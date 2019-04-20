@@ -15,12 +15,13 @@ import Web.DOM.ParentNode (QuerySelector(..))
 import Graphics.Canvas (Context2D, CanvasElement,
          clearRect, getCanvasElementById, getContext2D)
 import Graphics.Drawing (render) as Drawing
-import Data.Maybe (Maybe(..), fromJust)
+import Data.Maybe (Maybe(..), fromJust, fromMaybe)
+import Data.Array (index, updateAt)
 import Partial.Unsafe (unsafePartial)
 import Data.Int (toNumber)
-import Graphics (canvasHeight, canvasWidth, displayChord)
+import Graphics (canvasHeight, canvasWidth, displayChord, fingeredString)
 import Export (exportAs)
-import Types (ExportFormat(..), Fingering, dChord, openStrings, toMimeType)
+import Types (ExportFormat(..), Fingering, FingeredString, openStrings, toMimeType)
 
 import Debug.Trace (spy)
 
@@ -66,7 +67,7 @@ component =
       mGraphicsContext : Nothing
     , mCanvas : Nothing
     , canvasPosition : { left : 0.0, top : 0.0 }
-    , fingering : dChord
+    , fingering : openStrings
     }
 
   render :: State -> H.ComponentHTML Action () Aff
@@ -78,8 +79,8 @@ component =
       , HH.canvas
          [ HP.id_ "canvas"
          , HE.onClick canvasClickHandler
-         , HP.height canvasHeight --300
-         , HP.width  canvasWidth -- 300
+         , HP.height canvasHeight
+         , HP.width  canvasWidth
          ]
       , HH.div_
         [ renderClearFingeringButton state
@@ -141,12 +142,20 @@ component =
       let
         x = toNumber cx - state.canvasPosition.left
         y = toNumber cy - state.canvasPosition.top
+        {-}
         foo = spy "X:" x
         bar = spy "Y:" y
+        -}
+        fstring = fingeredString {x,y}
+        foo = spy "string:" fstring.stringNumber
+        bar = spy "fret:" fstring.fretNumber
+        newFingering = alterFingering fstring state.fingering
+      _ <- H.modify (\st -> st { fingering = newFingering })
+      _ <- handleQuery (DisplayFingering unit)
       pure unit
     ClearFingering -> do
       state <- H.get
-      _ <- H.modify (\st -> st { fingering  = openStrings })
+      _ <- H.modify (\st -> st { fingering = openStrings })
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     Export format -> do
@@ -197,3 +206,28 @@ component =
                               , width : toNumber canvasWidth
                               , height : toNumber canvasHeight
                               }
+
+  alterFingering :: FingeredString -> Fingering -> Fingering
+  alterFingering fingeredString fingering =
+    let
+      currentFret = unsafePartial $ fromJust $
+                      index fingering (fingeredString.stringNumber)
+      newFret =
+        -- if we're unfretted (fret 0) then toggle between open and silent
+        if (fingeredString.fretNumber == 0) then
+          if (currentFret == 0) then
+            -1
+          else
+            0
+        else
+          -- if we're at a real fret, make open if it's occupied already
+          -- else populate the new fret
+          if (fingeredString.fretNumber == currentFret) then
+            0
+          else
+            fingeredString.fretNumber
+
+      mNewFingering =
+        updateAt fingeredString.stringNumber newFret fingering
+    in
+      fromMaybe fingering mNewFingering

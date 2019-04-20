@@ -4,6 +4,7 @@
 /output/
 /generated-docs/
 /.psc-package/
+/deprecated/
 /dist/chordbuilder.js
 /.psc*
 /.purs*
