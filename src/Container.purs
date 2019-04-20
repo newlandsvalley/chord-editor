@@ -37,6 +37,7 @@ type State =
   , mCanvas :: Maybe CanvasElement
   , canvasPosition :: CanvasPosition
   , fingering :: Fingering
+  , name :: String
   }
 
 data Action =
@@ -69,6 +70,7 @@ component =
     , mCanvas : Nothing
     , canvasPosition : { left : 0.0, top : 0.0 }
     , fingering : openStrings
+    , name : "Em9"
     }
 
   render :: State -> H.ComponentHTML Action () Aff
@@ -193,7 +195,7 @@ component =
 
       _ <- H.liftEffect do
         clearCanvas state
-        Drawing.render graphicsCtx $ displayChord state.fingering
+        Drawing.render graphicsCtx $ displayChord state.fingering state.name
       pure (Just next)
 
   canvasClickHandler :: MouseEvent -> Maybe Action

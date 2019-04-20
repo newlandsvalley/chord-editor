@@ -5,14 +5,16 @@ module Graphics
   , displayChord
   , fingeredString) where
 
+import Graphics.Drawing.Font
 import Prelude
 
 import Color (Color, rgb, black, white)
+import Control.Comonad.Store (StoreT(..))
 import Data.Array (mapWithIndex, range)
 import Data.Foldable (foldl)
 import Data.Int (floor, round, toNumber)
+import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Math (pi)
-import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor)
 import Types (Fingering, FingeredString, MouseCoordinates, open, silent)
 
 gray :: Color
@@ -40,9 +42,17 @@ nutDepth :: Number
 nutDepth =
   cellSize / 3.0
 
+titlexOffset :: Number
+titlexOffset =
+  (neckWidth / 2.0)
+
+titleyOffset :: Number
+titleyOffset =
+  40.0
+
 nutyOffset:: Number
 nutyOffset =
-  50.0
+  70.0
 
 nutxOffset:: Number
 nutxOffset =
@@ -211,8 +221,15 @@ fingeredString coords =
       , fretNumber  : min fretNumber fretCount
       }
 
+title :: String -> Drawing
+title name =
+  let
+    theFont = font sansSerif 35 bold
+  in
+    text theFont titlexOffset titleyOffset (fillColor black) name
+
 
 -- | display the enire choords hape described by the fingering
-displayChord :: Fingering -> Drawing
-displayChord chord =
-  nut <> frets <> strings <> (fingering chord)
+displayChord :: Fingering -> String -> Drawing
+displayChord chord name =
+  title name <> nut <> frets <> strings <> (fingering chord)
