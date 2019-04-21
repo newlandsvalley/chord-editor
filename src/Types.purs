@@ -50,4 +50,7 @@ dChord =
 openStrings :: Fingering
 openStrings =
   [open,open,open,open,open,open]
-  -- [0,0,0,0,0,0]
+
+openStringsChordName :: String
+openStringsChordName =
+  "Em7+11"

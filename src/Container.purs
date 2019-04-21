@@ -19,10 +19,10 @@ import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Data.Array (index, updateAt)
 import Partial.Unsafe (unsafePartial)
 import Data.Int (toNumber)
-import Graphics (canvasHeight, canvasWidth, displayChord, fingeredString)
+import Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
 import Export (exportAs)
 import Types (ExportFormat(..), Fingering, FingeredString, open, silent,
-          openStrings, toMimeType)
+          openStrings, openStringsChordName, toMimeType)
 
 import Debug.Trace (spy)
 
@@ -44,6 +44,7 @@ data Action =
     Init
   | EditFingering Int Int
   | ClearFingering
+  | GetChordName String
   | Export ExportFormat
 
 data Query a =
@@ -70,7 +71,7 @@ component =
     , mCanvas : Nothing
     , canvasPosition : { left : 0.0, top : 0.0 }
     , fingering : openStrings
-    , name : "Em9"
+    , name : openStringsChordName
     }
 
   render :: State -> H.ComponentHTML Action () Aff
@@ -85,6 +86,9 @@ component =
          , HP.height canvasHeight
          , HP.width  canvasWidth
          ]
+      , HH.div_
+        [ renderChordNameInput state
+        ]
       , HH.div_
         [ renderClearFingeringButton state
         , renderExportPNGButton state
@@ -123,6 +127,20 @@ component =
         ]
         [ HH.text "export as PNG" ]
 
+  renderChordNameInput :: State -> H.ComponentHTML Action () Aff
+  renderChordNameInput state =
+    HH.div
+      [ HP.class_ (H.ClassName "chord-name-div") ]
+      [ HH.label
+        [ HP.class_ (H.ClassName "chord-name-labelabel") ]
+        [ HH.text "chord name:" ]
+      , HH.input
+          [ HE.onValueInput  (Just <<< GetChordName)
+          , HP.value state.name
+          , HP.type_ HP.InputText
+          , HP.id_  "chord-name"
+          ]
+      ]
 
   handleAction ∷ Action → H.HalogenM State Action () o Aff Unit
   handleAction = case _ of
@@ -145,22 +163,32 @@ component =
       let
         x = toNumber cx - state.canvasPosition.left
         y = toNumber cy - state.canvasPosition.top
-        {-}
-        foo = spy "X:" x
-        bar = spy "Y:" y
-        -}
-        fstring = fingeredString {x,y}
-        {-}
-        foo = spy "string:" fstring.stringNumber
-        bar = spy "fret:" fstring.fretNumber
-        -}
-        newFingering = alterFingering fstring state.fingering
-      _ <- H.modify (\st -> st { fingering = newFingering })
+      if (y > titleDepth)
+        then do
+          let
+            {-}
+            foo = spy "X:" x
+            bar = spy "Y:" y
+            -}
+            fstring = fingeredString {x,y}
+            {-}
+            foo = spy "string:" fstring.stringNumber
+            bar = spy "fret:" fstring.fretNumber
+            -}
+            newFingering = alterFingering fstring state.fingering
+          _ <- H.modify (\st -> st { fingering = newFingering })
+          _ <- handleQuery (DisplayFingering unit)
+          pure unit
+        else do
+          pure unit
+    GetChordName name -> do
+      _ <- H.modify (\st -> st { name = name })
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     ClearFingering -> do
       state <- H.get
-      _ <- H.modify (\st -> st { fingering = openStrings })
+      _ <- H.modify (\st -> st { fingering = openStrings
+                                , name = openStringsChordName })
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     Export format -> do

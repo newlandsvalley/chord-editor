@@ -2,6 +2,7 @@
 module Graphics
   ( canvasHeight
   , canvasWidth
+  , titleDepth
   , displayChord
   , fingeredString) where
 
@@ -48,8 +49,8 @@ titlexOffset =
   (neckWidth / 2.0)
 -}
 
-titleyOffset :: Number
-titleyOffset =
+titleDepth :: Number
+titleDepth =
   40.0
 
 nutyOffset:: Number
@@ -243,7 +244,7 @@ title name =
     -- but restrict it to start at the nut start for long strings
     titlexOffset = max unsafeTitlexOffset nutxOffset
   in
-    text theFont titlexOffset titleyOffset (fillColor black) displayName
+    text theFont titlexOffset titleDepth (fillColor black) displayName
 
 
 -- | display the enire choords hape described by the fingering
