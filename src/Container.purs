@@ -24,7 +24,7 @@ import Export (exportAs)
 import Types (ExportFormat(..), Fingering, FingeredString, open, silent,
           openStrings, openStringsChordName, toMimeType)
 
-import Debug.Trace (spy)
+-- import Debug.Trace (spy)
 
 type CanvasPosition =
   { left :: Number
@@ -79,16 +79,14 @@ component =
     HH.div_
       [ HH.h1
          [HP.class_ (H.ClassName "center") ]
-         [HH.text "Guitar Chord Builder" ]
+         [HH.text "Guitar Chord Editor" ]
       , HH.canvas
          [ HP.id_ "canvas"
          , HE.onClick canvasClickHandler
          , HP.height canvasHeight
          , HP.width  canvasWidth
          ]
-      , HH.div_
-        [ renderChordNameInput state
-        ]
+      , renderChordNameInput state
       , HH.div_
         [ renderClearFingeringButton state
         , renderExportPNGButton state
@@ -97,48 +95,34 @@ component =
 
   renderClearFingeringButton :: State -> H.ComponentHTML Action () Aff
   renderClearFingeringButton state =
-    let
-      enabled =
-        true
-        -- either (\_ -> false) (\_ -> true) state.tuneResult
-      className =
-        if enabled then "hoverable" else "unhoverable"
-    in
-      HH.button
-        [ HE.onClick \_ -> Just ClearFingering
-        , HP.class_ $ ClassName className
-        , HP.enabled enabled
-        ]
-        [ HH.text "clear fingering" ]
+    HH.button
+      [ HE.onClick \_ -> Just ClearFingering
+      , HP.class_ $ ClassName "hoverable"
+      , HP.enabled true
+      ]
+      [ HH.text "clear fingering" ]
 
   renderExportPNGButton :: State -> H.ComponentHTML Action () Aff
   renderExportPNGButton state =
-    let
-      enabled =
-        true
-        -- either (\_ -> false) (\_ -> true) state.tuneResult
-      className =
-        if enabled then "hoverable" else "unhoverable"
-    in
-      HH.button
-        [ HE.onClick \_ -> Just (Export PNG)
-        , HP.class_ $ ClassName className
-        , HP.enabled enabled
-        ]
-        [ HH.text "export as PNG" ]
+    HH.button
+      [ HE.onClick \_ -> Just (Export PNG)
+      , HP.class_ $ ClassName "hoverable"
+      , HP.enabled true
+      ]
+      [ HH.text "export as PNG" ]
 
   renderChordNameInput :: State -> H.ComponentHTML Action () Aff
   renderChordNameInput state =
     HH.div
-      [ HP.class_ (H.ClassName "chord-name-div") ]
+      [ HP.id_ "chord-name-div" ]
       [ HH.label
-        [ HP.class_ (H.ClassName "chord-name-labelabel") ]
+        [ HP.id_ "chord-name-label" ]
         [ HH.text "chord name:" ]
       , HH.input
           [ HE.onValueInput  (Just <<< GetChordName)
           , HP.value state.name
           , HP.type_ HP.InputText
-          , HP.id_  "chord-name"
+          , HP.id_  "chord-name-edit"
           ]
       ]
 
@@ -211,9 +195,11 @@ component =
         canvasElement = unsafePartial (fromJust mCanvasElement)
       left <- H.liftEffect $ offsetLeft canvasElement
       top <- H.liftEffect $ offsetTop canvasElement
+      {-}
       let
         foo = spy "Left:" left
         bar = spy "Top:" top
+      -}
       _ <- H.modify (\st -> st { canvasPosition  = { left, top } })
       pure (Just next)
     DisplayFingering next -> do
