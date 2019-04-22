@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "pulp build --to dist/chordbuilder.js"
+    "build": "pulp build --to dist/chordeditor.js"
   },
   "devDependencies": {
     "pulp": "^12.3.0",

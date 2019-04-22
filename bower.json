@@ -1,5 +1,5 @@
 {
-  "name": "chord-builder",
+  "name": "chord-editor",
   "ignore": [
     "**/.*",
     "node_modules",

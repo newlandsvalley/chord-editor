@@ -1,5 +1,5 @@
-chord-builder
-=============
+chord-editor
+============
 
 __Work In Progress__
 
