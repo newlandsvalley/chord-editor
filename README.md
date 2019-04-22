@@ -9,6 +9,7 @@ Provide a simple UI in order to generate chord diagrams like these:
 
 The idea comes after a late night conversation over a glass of whisky with felespiller [Sturla Eide](https://no.wikipedia.org/wiki/Sturla_Eide) who needs something similar for his guitar teaching.
 
+Try it out [here](http://www.tradtunedb.org.uk:8603/).
 
 Initial Design Aims
 -------------------
