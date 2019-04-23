@@ -38,6 +38,13 @@ body {
   transition: 500ms;
 }
 
+#canvas:hover {
+  box-shadow: 0 0;
+  /* background-color: #d2ed97;  */  /* very light green */
+  background-color: #daffa4;   /* very light green */
+  transition: 750ms;
+}
+
 #chord-name-edit {
   margin: 0 2px 0 20px;
   font-size: 1.3em;

@@ -15,8 +15,7 @@ import Data.Foldable (foldl)
 import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
-import Math (pi)
-import Types (Fingering, FingeredString, MouseCoordinates, open)
+import Types (Fingering, FingeredString, MouseCoordinates, open, silent)
 
 gray :: Color
 gray = rgb 160 160 160
@@ -42,12 +41,6 @@ neckWidth =
 nutDepth :: Number
 nutDepth =
   cellSize / 3.0
-
-{-}
-titlexOffset :: Number
-titlexOffset =
-  (neckWidth / 2.0)
--}
 
 titleDepth :: Number
 titleDepth =
@@ -151,30 +144,20 @@ openString stringNum =
         (fillColor white)
         (circle xpos ypos innerRadius)
 
-{-}
 -- | a cross above the nut indicates a string which should not be played
 silentString :: Int -> Drawing
 silentString stringNum =
   let
+    textSize = 26
     barLength = 0.25 * stringSeparation
-    barWidth = barLength / 3.0
-    outerRadius = 0.5 * fretDepth / 2.0
+    theFont = font sansSerif textSize bold
     xpos = nutxOffset +
            (toNumber stringNum * stringSeparation)
            - barLength
-    ypos = nutyOffset - (outerRadius + 4.0)
+    ypos = nutyOffset - (nutDepth * 0.5)
   in
-      filled
-        (fillColor black)
-        (rectangle xpos ypos (2.0 * barLength) barWidth)
-      <>
-        filled
-          (fillColor black)
-          (rectangle (xpos - 2.0 + barLength)
-                     (ypos + 2.0 - barLength)
-                     barWidth
-                     (2.0 * barLength))
--}
+    text theFont xpos ypos (fillColor black) "x"
+
 
 -- | draw a single finger on a string
 -- | at the moment, silent strings have no canvas widget to represent them
@@ -187,16 +170,18 @@ finger stringNum fretNum  =
     ypos = nutDepth + nutyOffset + (toNumber fretNum * fretDepth) - (radius + 2.0)
   in
     if
-      (fretNum < 0) || (fretNum > fretCount) ||
+      (fretNum > fretCount) ||
       (stringNum < 0) || (stringNum >= stringCount)
     then
       mempty
     else if (fretNum == open) then
       openString stringNum
+    else if (fretNum == silent) then
+      silentString stringNum
     else
-        filled
-          (fillColor black)
-          (circle xpos ypos radius)
+      filled
+        (fillColor black)
+        (circle xpos ypos radius)
 
 -- | draw the complete fingering
 fingering :: Array Int -> Drawing
