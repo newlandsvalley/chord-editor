@@ -15,7 +15,7 @@ Initial Design Aims
 -------------------
 
 *  We won't number the fingers.
-*  Possibly we'll omit the cross that represents an unplayed string.
+*  Add an optional marker for the offset of the first fret.
 *  Simple mouse-click interface for editing fingering.
 *  Display only the first 6 (or so) frets.
 *  Export as JPG (i.e. with opaque background).
