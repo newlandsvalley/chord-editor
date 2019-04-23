@@ -6,7 +6,6 @@ module Graphics
   , displayChord
   , fingeredString) where
 
-import Graphics.Drawing.Font (bold, font, sansSerif)
 import Prelude
 
 import Color (Color, rgb, black, white)
@@ -15,7 +14,8 @@ import Data.Foldable (foldl)
 import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
-import Types (Fingering, FingeredString, MouseCoordinates, open, silent)
+import Graphics.Drawing.Font (bold, light, font, sansSerif)
+import Types (DiagramParameters, Fingering, FingeredString, MouseCoordinates, open, silent)
 
 gray :: Color
 gray = rgb 160 160 160
@@ -44,7 +44,7 @@ nutDepth =
 
 titleDepth :: Number
 titleDepth =
-  40.0
+  35.0
 
 nutyOffset:: Number
 nutyOffset =
@@ -52,7 +52,7 @@ nutyOffset =
 
 nutxOffset:: Number
 nutxOffset =
-  cellSize
+  cellSize * 1.5
 
 fretDepth :: Number
 fretDepth =
@@ -148,9 +148,8 @@ openString stringNum =
 silentString :: Int -> Drawing
 silentString stringNum =
   let
-    textSize = 26
     barLength = 0.25 * stringSeparation
-    theFont = font sansSerif textSize bold
+    theFont = font sansSerif 26 bold
     xpos = nutxOffset +
            (toNumber stringNum * stringSeparation)
            - barLength
@@ -231,8 +230,28 @@ title name =
   in
     text theFont titlexOffset titleDepth (fillColor black) displayName
 
+-- | display the label of the first fret
+firstFretLabel :: Int -> Drawing
+firstFretLabel fretNo =
+  if
+    (fretNo < 1  || fretNo >= 10) then
+      mempty
+  else
+    let
+      theFont = font sansSerif 20 light
+      displayNumber = show fretNo
+      xpos = nutxOffset * 0.6
+      ypos = nutDepth + nutyOffset + (fretDepth * 0.6)
+  in
+    text theFont xpos ypos (fillColor black) displayNumber
+
 
 -- | display the enire choords hape described by the fingering
-displayChord :: Fingering -> String -> Drawing
-displayChord chord name =
-  title name <> nut <> frets <> strings <> (fingering chord)
+displayChord :: Fingering -> DiagramParameters -> Drawing
+displayChord chord params =
+  title params.name <>
+        nut <>
+        frets <>
+        strings <>
+        (fingering chord) <>
+        firstFretLabel params.firstFretOffset

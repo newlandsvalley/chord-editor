@@ -18,11 +18,10 @@ import Graphics.Drawing (render) as Drawing
 import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Data.Array (index, updateAt)
 import Partial.Unsafe (unsafePartial)
-import Data.Int (toNumber)
+import Data.Int (toNumber, fromString)
 import Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
 import Export (exportAs)
-import Types (ExportFormat(..), Fingering, FingeredString, open, silent,
-          openStrings, openStringsChordName, toMimeType)
+import Types
 
 -- import Debug.Trace (spy)
 
@@ -37,7 +36,7 @@ type State =
   , mCanvas :: Maybe CanvasElement
   , canvasPosition :: CanvasPosition
   , fingering :: Fingering
-  , name :: String
+  , diagramParameters :: DiagramParameters
   }
 
 data Action =
@@ -45,6 +44,7 @@ data Action =
   | EditFingering Int Int
   | ClearFingering
   | GetChordName String
+  | GetFirstFretNumber String
   | Export ExportFormat
 
 data Query a =
@@ -64,6 +64,12 @@ component =
     }
   where
 
+  openStringParameters :: DiagramParameters
+  openStringParameters =
+      { name : "Em7+11"
+      , firstFretOffset : 0
+      }
+
   initialState :: i -> State
   initialState _ =
     { -- mAudioContext : Nothing
@@ -71,7 +77,7 @@ component =
     , mCanvas : Nothing
     , canvasPosition : { left : 0.0, top : 0.0 }
     , fingering : openStrings
-    , name : openStringsChordName
+    , diagramParameters : openStringParameters
     }
 
   render :: State -> H.ComponentHTML Action () Aff
@@ -87,6 +93,7 @@ component =
          , HP.width  canvasWidth
          ]
       , renderChordNameInput state
+      , renderFirstFretNoInput state
       , HH.div_
         [ renderClearFingeringButton state
         , renderExportPNGButton state
@@ -120,9 +127,28 @@ component =
         [ HH.text "chord name:" ]
       , HH.input
           [ HE.onValueInput  (Just <<< GetChordName)
-          , HP.value state.name
+          , HP.value state.diagramParameters.name
           , HP.type_ HP.InputText
           , HP.id_  "chord-name-edit"
+          , HP.class_ $ ClassName "text-input"
+          ]
+      ]
+
+  renderFirstFretNoInput :: State -> H.ComponentHTML Action () Aff
+  renderFirstFretNoInput state =
+    HH.div
+      [ HP.id_ "fret-number-div" ]
+      [ HH.label
+        [ HP.id_ "fret-number-label" ]
+        [ HH.text "first fret number:" ]
+      , HH.input
+          [ HE.onValueInput  (Just <<< GetFirstFretNumber)
+          , HP.value (show state.diagramParameters.firstFretOffset)
+          , HP.type_ HP.InputNumber
+          , HP.min 0.0
+          , HP.max 9.0
+          , HP.id_  "fret-number-edit"
+          , HP.class_ $ ClassName "text-input"
           ]
       ]
 
@@ -166,13 +192,25 @@ component =
         else do
           pure unit
     GetChordName name -> do
-      _ <- H.modify (\st -> st { name = name })
+      state <- H.get
+      let
+        newParams = state.diagramParameters { name = name }
+        newState = state { diagramParameters = newParams }
+      _ <- H.put newState
+      _ <- handleQuery (DisplayFingering unit)
+      pure unit
+    GetFirstFretNumber numStr -> do
+      state <- H.get
+      let
+        fret = fromMaybe 0 $ fromString numStr
+        newParams = state.diagramParameters { firstFretOffset = fret }
+        newState = state { diagramParameters = newParams }
+      _ <- H.put newState
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     ClearFingering -> do
-      state <- H.get
       _ <- H.modify (\st -> st { fingering = openStrings
-                                , name = openStringsChordName })
+                                , diagramParameters = openStringParameters })
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     Export format -> do
@@ -180,7 +218,7 @@ component =
       let
         canvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
-      _ <- H.liftEffect $ exportAs canvas "sampleexport" mimeType
+      _ <- H.liftEffect $ exportAs canvas state.diagramParameters.name mimeType
       pure unit
 
   handleQuery :: ∀ o a. Query a -> H.HalogenM State Action () o Aff (Maybe a)
@@ -209,7 +247,8 @@ component =
 
       _ <- H.liftEffect do
         clearCanvas state
-        Drawing.render graphicsCtx $ displayChord state.fingering state.name
+        Drawing.render graphicsCtx
+                  $ displayChord state.fingering state.diagramParameters
       pure (Just next)
 
   canvasClickHandler :: MouseEvent -> Maybe Action

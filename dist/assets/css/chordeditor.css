@@ -2,10 +2,11 @@ body {
   padding: 0 40px 0 40px;
 }
 
-#chord-name-label {
-  /* display: block; */
+label {
+  display: inline-block;
   font-family: "Times New Roman";
   font-size: 1.3em;
+  width: 7em;
 }
 
 
@@ -45,12 +46,19 @@ body {
   transition: 750ms;
 }
 
-#chord-name-edit {
+.text-input {
   margin: 0 2px 0 20px;
-  font-size: 1.3em;
-  width: 120px;
+  font-size: 1.2em;
   font-family: "Times New Roman", monospace;
   background-color: Beige;
+}
+
+#chord-name-edit {
+  width: 120px;
+}
+
+#fret-number-edit {
+  width: 40px;
 }
 
 #scaling-slider {

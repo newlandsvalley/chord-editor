@@ -28,6 +28,13 @@ type MouseCoordinates =
   , y :: Number
   }
 
+-- | parameters other than fingering that show up on the chord diagram
+-- | and which are governed by HTML input boxes of some kind
+type DiagramParameters =
+  { name :: String             -- the chord name
+  , firstFretOffset :: Int     -- which fret on the guitar does fret 1 represent
+  }
+
 -- | an open string
 open :: FingerPosition
 open = 0
@@ -41,16 +48,12 @@ toMimeType :: ExportFormat -> String
 toMimeType PNG = "image/png;base64"
 toMimeType JPG = "image/jpeg"
 
--- | just a sample D chord
-dChord :: Fingering
-dChord =
-  [2,0,0,2,3,2]
-
 -- | all the open strings
 openStrings :: Fingering
 openStrings =
   [open,open,open,open,open,open]
 
+-- | and the chord that is therefore produced
 openStringsChordName :: String
 openStringsChordName =
   "Em7+11"
