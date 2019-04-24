@@ -47,7 +47,7 @@ label {
 }
 
 .text-input {
-  margin: 0 2px 0 20px;
+  margin: 10px 2px 0 20px;
   font-size: 1.2em;
   font-family: "Times New Roman", monospace;
   background-color: Beige;
@@ -61,6 +61,8 @@ label {
   width: 40px;
 }
 
-#scaling-slider {
-  width: 160px;
+.scaling-slider {
+  display: inline-block;
+  margin: 10px 2px 0 20px;
+  width: 130px;
 }

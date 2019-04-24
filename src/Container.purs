@@ -11,6 +11,7 @@ import Halogen.HTML.Properties as HP
 import Halogen.HTML.Core (ClassName(..))
 import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 import Web.HTML.HTMLElement (offsetTop, offsetLeft)
+import DOM.HTML.Indexed.StepValue (StepValue(..))
 import Web.DOM.ParentNode (QuerySelector(..))
 import Graphics.Canvas (Context2D, CanvasElement,
          clearRect, getCanvasElementById, getContext2D)
@@ -176,8 +177,10 @@ component =
             [ HE.onValueInput  (Just <<< GetImageScale <<< toScale )
             , HP.type_ HP.InputRange
             , HP.id_ "scale-slider"
+            , HP.class_ (H.ClassName "scaling-slider")
             , HP.min 25.0
             , HP.max 1000.0
+            , HP.step (Step 25.0)
             , HP.value (show state.exportScale)
             ]
         ]
@@ -249,10 +252,10 @@ component =
     Export format -> do
       state <- H.get
       let
-        canvas0 = unsafePartial (fromJust state.mCanvas)
+        originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
-      canvas <- H.liftEffect $ scaleCanvas canvas0 scaleFactor
+      canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
       _ <- H.liftEffect $ exportAs canvas state.diagramParameters.name mimeType
       pure unit
 
