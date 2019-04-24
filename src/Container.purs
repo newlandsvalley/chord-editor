@@ -20,10 +20,11 @@ import Data.Array (index, updateAt)
 import Partial.Unsafe (unsafePartial)
 import Data.Int (toNumber, fromString)
 import Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
-import Export (exportAs)
+import Export (exportAs, scaleCanvas)
 import Types
 
 -- import Debug.Trace (spy)
+type Percentage = Int
 
 type CanvasPosition =
   { left :: Number
@@ -37,6 +38,7 @@ type State =
   , canvasPosition :: CanvasPosition
   , fingering :: Fingering
   , diagramParameters :: DiagramParameters
+  , exportScale :: Percentage
   }
 
 data Action =
@@ -45,6 +47,7 @@ data Action =
   | ClearFingering
   | GetChordName String
   | GetFirstFretNumber String
+  | GetImageScale Percentage
   | Export ExportFormat
 
 data Query a =
@@ -78,6 +81,7 @@ component =
     , canvasPosition : { left : 0.0, top : 0.0 }
     , fingering : openStrings
     , diagramParameters : openStringParameters
+    , exportScale : 100
     }
 
   render :: State -> H.ComponentHTML Action () Aff
@@ -94,6 +98,10 @@ component =
          ]
       , renderChordNameInput state
       , renderFirstFretNoInput state
+      , HH.div_
+        [ renderImageScaleSlider state
+        , HH.text (show $ toNumber state.exportScale / 100.0)
+        ]
       , HH.div_
         [ renderClearFingeringButton state
         , renderExportPNGButton state
@@ -151,6 +159,28 @@ component =
           , HP.class_ $ ClassName "text-input"
           ]
       ]
+
+  renderImageScaleSlider :: State -> H.ComponentHTML Action () Aff
+  renderImageScaleSlider state =
+    let
+      toScale :: String -> Percentage
+      toScale s =
+        fromMaybe 100 $ fromString s
+    in
+      HH.div
+        [ HP.class_ (H.ClassName "leftPanelComponent")]
+        [ HH.label
+           [ HP.class_ (H.ClassName "labelAlignment") ]
+           [ HH.text "scale download:" ]
+        , HH.input
+            [ HE.onValueInput  (Just <<< GetImageScale <<< toScale )
+            , HP.type_ HP.InputRange
+            , HP.id_ "scale-slider"
+            , HP.min 25.0
+            , HP.max 1000.0
+            , HP.value (show state.exportScale)
+            ]
+        ]
 
   handleAction ∷ Action → H.HalogenM State Action () o Aff Unit
   handleAction = case _ of
@@ -213,11 +243,16 @@ component =
                                 , diagramParameters = openStringParameters })
       _ <- handleQuery (DisplayFingering unit)
       pure unit
+    GetImageScale scale -> do
+      _ <- H.modify (\st -> st { exportScale = scale })
+      pure unit
     Export format -> do
       state <- H.get
       let
-        canvas = unsafePartial (fromJust state.mCanvas)
+        canvas0 = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
+        scaleFactor = toNumber state.exportScale / 100.0
+      canvas <- H.liftEffect $ scaleCanvas canvas0 scaleFactor
       _ <- H.liftEffect $ exportAs canvas state.diagramParameters.name mimeType
       pure unit
 

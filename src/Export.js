@@ -34,3 +34,25 @@ exports.exportAs = function(canvas) {
     };
   };
 };
+
+exports.scaleCanvas = function(canvas) {
+  return function (factor) {
+    return function() {
+      // create a new canvas just to hold the download image
+      var downloadCanvas = document.createElement('canvas');
+      var width = canvas.width * factor;
+      var height = canvas.height * factor;
+      // get the context of the new canvas
+      var downloadCtx = downloadCanvas.getContext('2d');
+      // set the dimensions of the download canvas
+      downloadCanvas.width = width;
+      downloadCanvas.height = height;
+
+      // copy the canvas from source to destination, respecting
+      // the source and target dimensions
+      downloadCtx.drawImage (canvas, 0, 0, canvas.width, canvas.height,
+                              0, 0, width, height);
+      return downloadCanvas;
+    };
+  };
+};
