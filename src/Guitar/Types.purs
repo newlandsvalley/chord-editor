@@ -1,4 +1,4 @@
-module Types where
+module Guitar.Types where
 
 import Prelude (negate)
 

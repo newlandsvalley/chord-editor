@@ -1,5 +1,5 @@
 -- | draw the fretboard
-module Graphics
+module Guitar.Graphics
   ( canvasHeight
   , canvasWidth
   , titleDepth
@@ -15,7 +15,7 @@ import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
-import Types (DiagramParameters, Fingering, FingeredString, MouseCoordinates, open, silent)
+import Guitar.Types (DiagramParameters, Fingering, FingeredString, MouseCoordinates, open, silent)
 
 gray :: Color
 gray = rgb 160 160 160

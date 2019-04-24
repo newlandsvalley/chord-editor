@@ -1,28 +1,28 @@
-module Container where
+module Guitar.Container where
 
+import Guitar.Types
 import Prelude
-import Effect.Aff (Aff)
+
+import DOM.HTML.Indexed.StepValue (StepValue(..))
+import Data.Array (index, updateAt)
+import Data.Int (toNumber, fromString)
+import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Effect (Effect)
-import Halogen.Aff as HA
+import Effect.Aff (Aff)
+import Graphics.Canvas (Context2D, CanvasElement, clearRect, getCanvasElementById, getContext2D)
+import Graphics.Drawing (render) as Drawing
+import Guitar.Export (exportAs, scaleCanvas)
+import Guitar.Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
 import Halogen as H
+import Halogen.Aff as HA
 import Halogen.HTML as HH
+import Halogen.HTML.Core (ClassName(..))
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Halogen.HTML.Core (ClassName(..))
-import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
-import Web.HTML.HTMLElement (offsetTop, offsetLeft)
-import DOM.HTML.Indexed.StepValue (StepValue(..))
-import Web.DOM.ParentNode (QuerySelector(..))
-import Graphics.Canvas (Context2D, CanvasElement,
-         clearRect, getCanvasElementById, getContext2D)
-import Graphics.Drawing (render) as Drawing
-import Data.Maybe (Maybe(..), fromJust, fromMaybe)
-import Data.Array (index, updateAt)
 import Partial.Unsafe (unsafePartial)
-import Data.Int (toNumber, fromString)
-import Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
-import Export (exportAs, scaleCanvas)
-import Types
+import Web.DOM.ParentNode (QuerySelector(..))
+import Web.HTML.HTMLElement (offsetTop, offsetLeft)
+import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 
 -- import Debug.Trace (spy)
 type Percentage = Int
@@ -70,7 +70,7 @@ component =
 
   openStringParameters :: DiagramParameters
   openStringParameters =
-      { name : "Em7+11"
+      { name : openStringsChordName
       , firstFretOffset : 0
       }
 

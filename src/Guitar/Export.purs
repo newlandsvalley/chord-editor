@@ -1,4 +1,4 @@
-module Export (exportAs, scaleCanvas) where
+module Guitar.Export (exportAs, scaleCanvas) where
 
 import Prelude (Unit)
 import Graphics.Canvas (CanvasElement)
