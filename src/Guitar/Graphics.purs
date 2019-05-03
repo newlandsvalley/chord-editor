@@ -4,12 +4,14 @@ module Guitar.Graphics
   , canvasWidth
   , titleDepth
   , displayChord
-  , fingeredString) where
+  , fingeredString
+  ) where
 
 import Prelude
 
 import Color (Color, rgb, black, white)
 import Data.Array (mapWithIndex, range)
+import Data.Maybe (Maybe(..))
 import Data.Foldable (foldl)
 import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (dropRight, length)
@@ -161,8 +163,8 @@ silentString stringNum =
 -- | draw a single finger on a string
 -- | at the moment, silent strings have no canvas widget to represent them
 -- | (such as a cross) they are thus marked by an absence..
-finger :: Int -> Int -> Drawing
-finger stringNum fretNum  =
+finger :: Maybe FingeredString -> Int -> Int -> Drawing
+finger  mBarre stringNum fretNum  =
   let
     radius = 0.7 * fretDepth / 2.0
     xpos = nutxOffset + (toNumber stringNum * stringSeparation)
@@ -173,6 +175,9 @@ finger stringNum fretNum  =
       (stringNum < 0) || (stringNum >= stringCount)
     then
       mempty
+    -- don't display the 0 or X against a barre'd string
+    else if (stringIsBarred mBarre stringNum) && (fretNum <= open) then
+      mempty
     else if (fretNum == open) then
       openString stringNum
     else if (fretNum == silent) then
@@ -182,11 +187,37 @@ finger stringNum fretNum  =
         (fillColor black)
         (circle xpos ypos radius)
 
--- | draw the complete fingering
-fingering :: Array Int -> Drawing
-fingering fingerSpec =
-  foldl (<>) mempty $ mapWithIndex finger fingerSpec
 
+-- | draw the complete fingering
+fingering :: Array Int -> Maybe FingeredString -> Drawing
+fingering fingerSpec mBarre =
+  foldl (<>) mempty $ mapWithIndex (finger mBarre) fingerSpec
+
+-- | display the barré (if present)
+barre :: Maybe FingeredString -> Drawing
+barre mFingeredString =
+  case mFingeredString of
+    Just fs ->
+      let
+        xstart = nutxOffset + (toNumber fs.stringNumber * stringSeparation) - (stringSeparation / 4.0)
+        xlen = toNumber (stringCount - fs.stringNumber- 1) * stringSeparation + (stringSeparation / 2.0)
+        ystart = nutDepth + nutyOffset + (toNumber fs.fretNumber * fretDepth) - (fretDepth / 2.0)
+        ylen = cellSize / 7.0
+      in
+        filled
+          (fillColor black)
+          (rectangle xstart ystart xlen ylen)
+    _ ->
+      mempty
+
+-- | return true if the string is barréd
+stringIsBarred :: Maybe FingeredString -> Int -> Boolean
+stringIsBarred mFingeredString stringNum =
+  case mFingeredString of
+    Just fString ->
+      fString.stringNumber <= stringNum
+    _ ->
+      false
 
 -- | work out a fingered string from the mouse click coordinates
 fingeredString :: MouseCoordinates -> FingeredString
@@ -253,5 +284,6 @@ displayChord chord params =
         nut <>
         frets <>
         strings <>
-        (fingering chord) <>
+        barre params.barre <>
+        (fingering chord params.barre) <>
         firstFretLabel params.firstFretOffset
