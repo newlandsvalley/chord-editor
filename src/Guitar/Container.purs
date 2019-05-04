@@ -6,7 +6,7 @@ import Prelude
 import DOM.HTML.Indexed.StepValue (StepValue(..))
 import Data.Array (index, mapWithIndex, updateAt)
 import Data.Int (toNumber, fromString)
-import Data.Maybe (Maybe(..), fromJust, fromMaybe, maybe)
+import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff (Aff)
@@ -382,13 +382,14 @@ component =
           else
             open
         else
-          -- if we're at a real fret, make open if it's occupied already
+          -- if we're hidden by a barre, don't change the fingering
+          if (hiddenByBarre mBarre fingeredString) then
+            currentFret
+          -- if we're at a real fret, and it's occupied already
+          -- then remove it and set to open
+          else if (fingeredString.fretNumber == currentFret) then
+            open
           -- else populate the new fret
-          if (fingeredString.fretNumber == currentFret) then
-            open
-          -- but if we're hidden by a barre, don't use the fingering
-          else if (hiddenByBarre mBarre fingeredString) then
-            open
           else
             fingeredString.fretNumber
 
