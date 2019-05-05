@@ -9,7 +9,7 @@ import Data.Int (toNumber, fromString)
 import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Effect.Aff (Aff)
+import Effect.Aff.Class (class MonadAff)
 import Graphics.Canvas (Context2D, CanvasElement, clearRect, getCanvasElementById, getContext2D)
 import Graphics.Drawing (render) as Drawing
 import Guitar.Export (exportAs, scaleCanvas)
@@ -25,6 +25,8 @@ import Partial.Unsafe (unsafePartial)
 import Web.DOM.ParentNode (QuerySelector(..))
 import Web.HTML.HTMLElement (offsetTop, offsetLeft)
 import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
+
+type Slot = H.Slot Query Void
 
 -- import Debug.Trace (spy)
 type Percentage = Int
@@ -61,7 +63,7 @@ data Query a =
   | EditFingering a
   | DisplayFingering a
 
-component :: ∀ i o. H.Component HH.HTML Query i o Aff
+component :: ∀ i o m. MonadAff m => H.Component HH.HTML Query i o m
 component =
   H.mkComponent
     { initialState
@@ -94,7 +96,7 @@ component =
     , exportScale : 100
     }
 
-  render :: State -> H.ComponentHTML Action () Aff
+  render :: State -> H.ComponentHTML Action () m
   render state =
     HH.div_
       [ HH.h1
@@ -120,7 +122,7 @@ component =
         ]
       ]
 
-  renderClearFingeringButton :: State -> H.ComponentHTML Action () Aff
+  renderClearFingeringButton :: State -> H.ComponentHTML Action () m
   renderClearFingeringButton state =
     HH.button
       [ HE.onClick \_ -> Just ClearFingering
@@ -129,7 +131,7 @@ component =
       ]
       [ HH.text "clear fingering" ]
 
-  renderExportPNGButton :: State -> H.ComponentHTML Action () Aff
+  renderExportPNGButton :: State -> H.ComponentHTML Action () m
   renderExportPNGButton state =
     HH.button
       [ HE.onClick \_ -> Just (Export PNG)
@@ -138,7 +140,7 @@ component =
       ]
       [ HH.text "download PNG" ]
 
-  renderChordNameInput :: State -> H.ComponentHTML Action () Aff
+  renderChordNameInput :: State -> H.ComponentHTML Action () m
   renderChordNameInput state =
     HH.div
       [ HP.id_ "chord-name-div" ]
@@ -154,7 +156,7 @@ component =
           ]
       ]
 
-  renderFirstFretNoInput :: State -> H.ComponentHTML Action () Aff
+  renderFirstFretNoInput :: State -> H.ComponentHTML Action () m
   renderFirstFretNoInput state =
     HH.div
       [ HP.id_ "fret-number-div" ]
@@ -172,7 +174,7 @@ component =
           ]
       ]
 
-  renderImageScaleSlider :: State -> H.ComponentHTML Action () Aff
+  renderImageScaleSlider :: State -> H.ComponentHTML Action () m
   renderImageScaleSlider state =
     let
       toScale :: String -> Percentage
@@ -214,7 +216,7 @@ component =
      "-" <>
      show fs.fretNumber)
 
-  handleAction ∷ Action → H.HalogenM State Action () o Aff Unit
+  handleAction ∷ Action -> H.HalogenM State Action () o m Unit
   handleAction = case _ of
     Init -> do
       -- audioCtx <- H.liftEffect newAudioContext
@@ -294,7 +296,7 @@ component =
       _ <- H.liftEffect $ exportAs canvas state.diagramParameters.name mimeType
       pure unit
 
-  handleQuery :: ∀ o a. Query a -> H.HalogenM State Action () o Aff (Maybe a)
+  handleQuery :: ∀ o a. Query a -> H.HalogenM State Action () o m (Maybe a)
   handleQuery = case _ of
     -- get the coordinates of the upper left hand corner of the canvas we've
     -- just built.  We need this to find accurate mouse click references relative
