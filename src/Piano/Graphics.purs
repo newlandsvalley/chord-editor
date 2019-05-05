@@ -16,7 +16,8 @@ import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, font, sansSerif)
-import Piano.Types (DiagramParameters, Fingering, MouseCoordinates)
+import Piano.Types (DiagramParameters, Fingering)
+import Common.Types (MouseCoordinates)
 
 -- | the index positions of the black keys in the double octave
 blackKeyPositions :: Array Int

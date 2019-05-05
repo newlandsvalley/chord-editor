@@ -17,7 +17,8 @@ import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
-import Guitar.Types (DiagramParameters, Fingering, FingeredString, MouseCoordinates, open, silent)
+import Guitar.Types (DiagramParameters, Fingering, FingeredString, open, silent)
+import Common.Types (MouseCoordinates)
 
 gray :: Color
 gray = rgb 160 160 160

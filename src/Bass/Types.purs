@@ -10,18 +10,13 @@ import Data.Maybe (Maybe)
 type FingerPosition = Int
 
 -- | fingering is represented as an array of finger positions
+-- | one for each of the 4 strings
 type Fingering = Array FingerPosition
 
 -- | a fingered string
 type FingeredString =
   { stringNumber :: Int
   , fretNumber  :: FingerPosition
-  }
-
--- | the coordinates of a mouse click relative to the top left of the canvas
-type MouseCoordinates =
-  { x :: Number
-  , y :: Number
   }
 
 -- | parameters other than fingering that show up on the chord diagram
@@ -43,7 +38,7 @@ silent = -1
 -- | all the open strings
 openStrings :: Fingering
 openStrings =
-  [open,open,open,open,open,open]
+  [open,open,open,open]
 
 -- | and the chord that is therefore produced
 openStringsChordName :: String

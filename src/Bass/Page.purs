@@ -12,7 +12,7 @@ import Effect.Aff.Class (class MonadAff)
 import Graphics.Canvas (Context2D, CanvasElement, clearRect, getCanvasElementById, getContext2D)
 import Graphics.Drawing (render) as Drawing
 import Common.Export (exportAs, scaleCanvas, toMimeType)
-import Common.Types (ExportFormat(..))
+import Common.Types (ExportFormat(..), CanvasPosition, Percentage)
 import Bass.Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
 import Halogen as H
 import Halogen.Aff as HA
@@ -28,12 +28,6 @@ import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 type Slot = H.Slot Query Void
 
 -- import Debug.Trace (spy)
-type Percentage = Int
-
-type CanvasPosition =
-  { left :: Number
-  , top  :: Number
-  }
 
 type State =
   { -- mAudioContext :: Maybe AudioContext

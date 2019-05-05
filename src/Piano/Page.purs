@@ -22,18 +22,12 @@ import Partial.Unsafe (unsafePartial)
 import Data.Int (toNumber, fromString)
 import Piano.Graphics (canvasHeight, canvasWidth, displayChord, fingeredKey)
 import Piano.Types (DiagramParameters, Fingering, unfingered)
-import Common.Types (ExportFormat(..))
+import Common.Types (ExportFormat(..), CanvasPosition, Percentage)
 import Common.Export (exportAs, scaleCanvas, toMimeType)
 
 type Slot = H.Slot Query Void
 
 -- import Debug.Trace (spy)
-type Percentage = Int
-
-type CanvasPosition =
-  { left :: Number
-  , top  :: Number
-  }
 
 type State =
   { -- mAudioContext :: Maybe AudioContext

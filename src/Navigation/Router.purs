@@ -1,6 +1,6 @@
 module Navigation.Router where
 
--- The Router Halogen Component
+-- | The Router Halogen Component
 
 import Prelude
 import Data.Const (Const)
