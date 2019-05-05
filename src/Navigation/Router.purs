@@ -36,7 +36,7 @@ data Action
 type ChildSlots =
   ( home :: OpaqueSlot Unit
   , guitar :: Guitar.Slot Unit
-  , bass :: OpaqueSlot Unit
+  , bass :: Bass.Slot Unit
   , piano :: OpaqueSlot Unit
   )
 
