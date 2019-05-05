@@ -11,10 +11,6 @@ type FingerPosition = Int
 -- | fingering is represented as an array of finger positions
 type Fingering = Array FingerPosition
 
--- | we only export to PNG and JPG at the moment
-data ExportFormat =
-    PNG
-  | JPG
 
 -- | a fingered string
 type FingeredString =
@@ -33,12 +29,6 @@ type MouseCoordinates =
 type DiagramParameters =
   { name :: String             -- the chord name
   }
-
--- | the MIME type for each export format
-toMimeType :: ExportFormat -> String
-toMimeType PNG = "image/png;base64"
-toMimeType JPG = "image/jpeg"
-
 
 -- | an open string
 open :: FingerPosition

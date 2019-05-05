@@ -23,7 +23,8 @@ import Partial.Unsafe (unsafePartial)
 import Data.Int (toNumber, fromString)
 import Piano.Graphics (canvasHeight, canvasWidth, displayChord, fingeredKey)
 import Piano.Types
-import Common.Export (exportAs, scaleCanvas)
+import Common.Types (ExportFormat(..))
+import Common.Export (exportAs, scaleCanvas, toMimeType)
 
 type Slot = H.Slot Query Void
 

@@ -12,11 +12,6 @@ type FingerPosition = Int
 -- | fingering is represented as an array of finger positions
 type Fingering = Array FingerPosition
 
--- | we only export to PNG and JPG at the moment
-data ExportFormat =
-    PNG
-  | JPG
-
 -- | a fingered string
 type FingeredString =
   { stringNumber :: Int
@@ -44,11 +39,6 @@ open = 0
 -- | a silent (unplayed) string
 silent :: FingerPosition
 silent = -1
-
--- | the MIME type for each export format
-toMimeType :: ExportFormat -> String
-toMimeType PNG = "image/png;base64"
-toMimeType JPG = "image/jpeg"
 
 -- | all the open strings
 openStrings :: Fingering
