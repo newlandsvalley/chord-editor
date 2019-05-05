@@ -36,7 +36,8 @@ component =
       [ HH.h1
          [HP.class_ (H.ClassName "center") ]
          [HH.text "Chord Editor - Home Page" ]
-      , HH.ul_
+      , HH.ul
+         [HP.class_ (H.ClassName "menu") ]
          [ HH.li_
              [ HH.a
                 [HP.href "#/guitar" ]
