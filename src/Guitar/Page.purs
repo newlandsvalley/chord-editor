@@ -1,4 +1,4 @@
-module Guitar.Container where
+module Guitar.Page where
 
 import Guitar.Types
 import Prelude
@@ -136,7 +136,7 @@ component =
       , HP.class_ $ ClassName "hoverable"
       , HP.enabled true
       ]
-      [ HH.text "export as PNG" ]
+      [ HH.text "download PNG" ]
 
   renderChordNameInput :: State -> H.ComponentHTML Action () Aff
   renderChordNameInput state =
