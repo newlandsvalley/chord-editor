@@ -37,7 +37,7 @@ type ChildSlots =
   ( home :: OpaqueSlot Unit
   , guitar :: Guitar.Slot Unit
   , bass :: Bass.Slot Unit
-  , piano :: OpaqueSlot Unit
+  , piano :: Piano.Slot Unit
   )
 
 component :: ∀ m. MonadAff m => Navigate m => H.Component HH.HTML Query Unit Void m
