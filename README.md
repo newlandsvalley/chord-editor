@@ -5,24 +5,18 @@ __Work In Progress__
 
 Provide a simple UI in order to generate chord diagrams like this:
 
-![chord-diagram](https://github.com/newlandsvalley/chord-builder/blob/master/F_guitar.png).
+![chord-diagram-guitar](https://github.com/newlandsvalley/chord-builder/blob/master/F_guitar.png)
 
-The idea comes after a late night conversation over a glass of whisky with felespiller [Sturla Eide](https://no.wikipedia.org/wiki/Sturla_Eide) who needs something similar for his guitar teaching.
+The idea comes after a late night conversation over a glass of whisky with felespiller [Sturla Eide](https://no.wikipedia.org/wiki/Sturla_Eide) who needs something similar for his guitar teaching. He also needed similar patterns for bass:
+
+![chord-diagram-bass](https://github.com/newlandsvalley/chord-builder/blob/master/F_bass.png)
+
+and piano:
+
+![chord-diagram-piano](https://github.com/newlandsvalley/chord-builder/blob/master/F_piano.png)
 
 Try it out [here](http://www.tradtunedb.org.uk:8603/).
 
-Initial Design Aims
--------------------
-
-*  We won't number the fingers.
-*  Add an optional marker for the offset of the first fret.
-*  Simple mouse-click interface for editing fingering.
-*  Display only the first 6 (or so) frets.
-*  Export as JPG (i.e. with opaque background).
-*  Export as PNG (i.e. with transparent background).
-*  Export as EPS?
-*  Allow images to be scaled on export.
-*  Allow the chord to be played.
 
 To build
 --------
