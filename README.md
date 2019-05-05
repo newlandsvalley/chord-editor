@@ -3,9 +3,9 @@ chord-editor
 
 __Work In Progress__
 
-Provide a simple UI in order to generate chord diagrams like these:
+Provide a simple UI in order to generate chord diagrams like this:
 
-![chord-diagram](https://github.com/newlandsvalley/chord-builder/blob/master/chord-diagram.jpg).
+![chord-diagram](https://github.com/newlandsvalley/chord-builder/blob/master/F_guitar.png).
 
 The idea comes after a late night conversation over a glass of whisky with felespiller [Sturla Eide](https://no.wikipedia.org/wiki/Sturla_Eide) who needs something similar for his guitar teaching.
 
