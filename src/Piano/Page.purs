@@ -1,7 +1,6 @@
 module Piano.Page where
 
 import Prelude
-import Effect.Aff (Aff)
 import Effect (Effect)
 import Effect.Aff.Class (class MonadAff)
 import Halogen.Aff as HA
@@ -22,7 +21,7 @@ import Data.Array (cons, filter, length)
 import Partial.Unsafe (unsafePartial)
 import Data.Int (toNumber, fromString)
 import Piano.Graphics (canvasHeight, canvasWidth, displayChord, fingeredKey)
-import Piano.Types
+import Piano.Types (DiagramParameters, Fingering, unfingered)
 import Common.Types (ExportFormat(..))
 import Common.Export (exportAs, scaleCanvas, toMimeType)
 
@@ -230,8 +229,9 @@ component =
         originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
+        fileName = state.diagramParameters.name <> "_piano"
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
-      _ <- H.liftEffect $ exportAs canvas state.diagramParameters.name mimeType
+      _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
 
   handleQuery :: ∀ o a. Query a -> H.HalogenM State Action () o m (Maybe a)

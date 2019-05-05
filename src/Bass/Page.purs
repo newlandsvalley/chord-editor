@@ -8,7 +8,6 @@ import Data.Array (index, updateAt)
 import Data.Int (toNumber, fromString)
 import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Effect (Effect)
-import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Graphics.Canvas (Context2D, CanvasElement, clearRect, getCanvasElementById, getContext2D)
 import Graphics.Drawing (render) as Drawing
@@ -27,7 +26,6 @@ import Web.HTML.HTMLElement (offsetTop, offsetLeft)
 import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 
 type Slot = H.Slot Query Void
-
 
 -- import Debug.Trace (spy)
 type Percentage = Int
@@ -275,8 +273,9 @@ component =
         originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
+        fileName = state.diagramParameters.name <> "_bass"
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
-      _ <- H.liftEffect $ exportAs canvas state.diagramParameters.name mimeType
+      _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
 
   handleQuery :: ∀ o a. Query a -> H.HalogenM State Action () o m (Maybe a)
