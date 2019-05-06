@@ -17,13 +17,14 @@ import Graphics.Canvas (Context2D, CanvasElement,
          clearRect, getCanvasElementById, getContext2D)
 import Graphics.Drawing (render) as Drawing
 import Data.Maybe (Maybe(..), fromJust, fromMaybe, isJust)
-import Data.Array (cons, filter, length)
+import Data.Array (cons, filter)
 import Partial.Unsafe (unsafePartial)
 import Data.Int (toNumber, fromString)
 import Piano.Graphics (canvasHeight, canvasWidth, displayChord, fingeredKey)
 import Piano.Types (DiagramParameters, Fingering, unfingered)
 import Common.Types (ExportFormat(..), CanvasPosition, Percentage)
 import Common.Export (exportAs, scaleCanvas, toMimeType)
+import Common.Utils (contains)
 
 type Slot = H.Slot Query Void
 
@@ -279,6 +280,8 @@ component =
     else
       cons fingeredKey fingering
 
+{-}
   contains :: ∀ a. Eq a => Array a -> a -> Boolean
   contains xs x =
     (length $ filter (\y -> y == x) xs) > 0
+-}

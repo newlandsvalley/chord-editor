@@ -8,16 +8,17 @@ module Piano.Graphics
 
 import Prelude
 
-import Color (black, white)
+import Color (Color, black, white, graytone)
 import Data.Array (index, range)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Foldable (foldl)
 import Data.Int (floor, round, toNumber)
-import Data.String.CodeUnits (length)
+import Data.String.CodeUnits (length) as Str
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, font, sansSerif)
 import Piano.Types (DiagramParameters, Fingering)
 import Common.Types (MouseCoordinates)
+import Common.Utils (contains)
 
 -- | the index positions of the black keys in the double octave
 blackKeyPositions :: Array Int
@@ -27,21 +28,17 @@ blackKeyPositions = [1,3,6,8,10,13,15,18,20,22]
 whiteKeyPositions :: Array Int
 whiteKeyPositions = [0,2,4,5,7,9,11,12,14,16,17,19,21,23]
 
--- | the actual x offsets from the start of the first ket for each black note
+-- | the actual x offset from the start of the first key for the black note
+-- | defined by the key index.
 -- | n.b. This is not completely regular because 7 white notes  and 12 black or
 -- | white notes have no real common multiple, so we massage the black keys at
 -- | positions 6 and 18 a little to make it look OK.
-blackKeyOffsets :: Array Number
-blackKeyOffsets =
-  let
-    f :: Int -> Number
-    f pos =
-      if (pos == 6 || pos == 18 ) then
-        toNumber pos * blackKeyWidth + 6.0
-      else
-        toNumber pos * blackKeyWidth
-  in
-    map f blackKeyPositions
+blackKeyOffset :: Int -> Number
+blackKeyOffset pos =
+  if (pos == 6 || pos == 18 ) then
+    toNumber pos * blackKeyWidth + 6.0
+  else
+    toNumber pos * blackKeyWidth
 
 canvasWidth :: Int
 canvasWidth =
@@ -62,7 +59,7 @@ titleDepth =
 
 keyboardyOffset:: Number
 keyboardyOffset =
-  3.0 * cellSize
+  2.0 * cellSize
 
 keyboardxOffset:: Number
 keyboardxOffset =
@@ -97,48 +94,89 @@ whiteKeyLength  :: Number
 whiteKeyLength =
   cellSize * 9.0
 
-whiteKey :: Int -> Drawing
-whiteKey n =
+whiteKey :: Fingering -> Int -> Drawing
+whiteKey fingering n =
   let
     xOffset =  keyboardxOffset + toNumber n  * whiteKeyWidth
     yOffset = keyboardyOffset
+    keyNumber :: Int
+    keyNumber = fromMaybe (-1) $ index whiteKeyPositions n
+    colour =
+      if (contains fingering keyNumber) then (graytone 0.8) else white
+    keyedCircle =
+      if (contains fingering keyNumber) then
+        smallCircle
+          black
+          (xOffset + (whiteKeyWidth * 0.5))
+          (yOffset + (whiteKeyLength * 0.8))
+      else
+        mempty
   in
     filled
       (fillColor black)
       (rectangle xOffset yOffset whiteKeyWidth whiteKeyLength)
     <>
       filled
-        (fillColor white)
+        (fillColor colour)
         (rectangle (xOffset + 2.0) (yOffset + 2.0) (whiteKeyWidth -4.0) (whiteKeyLength -4.0))
+    <>
+      keyedCircle
 
-blackKey :: Number -> Drawing
-blackKey keyOffset =
+blackKey :: Fingering -> Int -> Drawing
+blackKey fingering keyNumber =
   let
+    keyOffset = blackKeyOffset keyNumber
     xOffset =  keyboardxOffset + keyOffset
     yOffset = keyboardyOffset
+    colour =
+      if (contains fingering keyNumber) then (graytone 0.8) else black
+    keyedCircle =
+      if (contains fingering keyNumber) then
+        smallCircle
+          white
+          (xOffset + (blackKeyWidth * 0.5))
+          (yOffset + (blackKeyLength * 0.6))
+      else
+        mempty
   in
     filled
       (fillColor black)
       (rectangle xOffset yOffset blackKeyWidth blackKeyLength)
+    <>
+      filled
+        (fillColor colour)
+        (rectangle (xOffset + 1.5) (yOffset + 1.5) (blackKeyWidth -3.0) (blackKeyLength -3.0))
+    <>
+      keyedCircle
 
 -- | draw the white keys
-whiteKeys :: Drawing
-whiteKeys =
+whiteKeys :: Fingering -> Drawing
+whiteKeys fingering =
   let
     keys = range 0 (whiteNoteCount -1)
     f :: Drawing -> Int -> Drawing
-    f acc n = acc <> (whiteKey n)
+    f acc n = acc <> (whiteKey fingering n)
   in
     foldl f mempty keys
 
 -- | draw the black keys
-blackKeys :: Drawing
-blackKeys =
+blackKeys :: Fingering -> Drawing
+blackKeys fingering =
   let
-    f :: Drawing -> Number -> Drawing
-    f acc n = acc <> (blackKey n)
+    f :: Drawing -> Int -> Drawing
+    f acc n = acc <> (blackKey fingering n)
   in
-    foldl f mempty blackKeyOffsets
+    foldl f mempty blackKeyPositions
+
+-- | an circle within a key shows it to be selected in a chord
+smallCircle :: Color -> Number -> Number -> Drawing
+smallCircle colour xpos ypos =
+  let
+    radius = 0.3 * cellSize
+  in
+    filled
+      (fillColor colour)
+      (circle xpos ypos radius)
 
 -- | display the chord diagram title, but constrain it to live within
 -- | the width of the nut, roughly centered
@@ -147,32 +185,11 @@ title name =
   let
     theFont = font sansSerif 35 bold
     -- rough heuristic for the width in pixels
-    textWidth = (cellSize / 1.5) * (toNumber $ length name)
+    textWidth = (cellSize / 1.5) * (toNumber $ Str.length name)
     -- roughly center
     titlexOffset = keyboardxOffset + ((keyboardWidth - textWidth) / 2.0)
   in
     text theFont titlexOffset titleDepth (fillColor black) name
-
--- | an circle above the key shows it to be selected in a chord
-selectedKey :: Int -> Drawing
-selectedKey keyNum =
-  let
-    radius = 0.3 * cellSize
-    xpos = keyboardxOffset + (toNumber keyNum * blackKeyWidth) + (blackKeyWidth / 2.0)
-    ypos = keyboardyOffset - (radius + 4.0)
-  in
-    filled
-      (fillColor black)
-      (circle xpos ypos radius)
-
--- | draw the circles above the selected keys
-selectedKeys :: Array Int -> Drawing
-selectedKeys fingers =
-  let
-    f :: Drawing -> Int -> Drawing
-    f acc n = acc <> (selectedKey n)
-  in
-    foldl f mempty fingers
 
 -- | work out a newly fingered Key from the mouse click coordinates
 fingeredKey :: MouseCoordinates -> Maybe Int
@@ -196,6 +213,5 @@ fingeredKey coords =
 displayChord :: Fingering -> DiagramParameters -> Drawing
 displayChord chord params =
   title params.name <>
-    whiteKeys <>
-    blackKeys <>
-    selectedKeys chord
+    whiteKeys chord <>
+    blackKeys chord
