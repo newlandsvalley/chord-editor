@@ -9,7 +9,7 @@ module Guitar.Graphics
 
 import Prelude
 
-import Color (Color, rgb, black, white)
+import Color (black, white, graytone)
 import Data.Array (mapWithIndex, range)
 import Data.Maybe (Maybe(..))
 import Data.Foldable (foldl)
@@ -19,9 +19,6 @@ import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
 import Guitar.Types (DiagramParameters, Fingering, FingeredString, open, silent)
 import Common.Types (MouseCoordinates)
-
-gray :: Color
-gray = rgb 160 160 160
 
 canvasWidth :: Int
 canvasWidth =
@@ -88,7 +85,7 @@ stringWidth =
 nut :: Drawing
 nut =
   filled
-    (fillColor gray)
+    (fillColor $ graytone 0.8)
     (rectangle nutxOffset nutyOffset (neckWidth + stringWidth) nutDepth)
 
 fret :: Int -> Drawing
