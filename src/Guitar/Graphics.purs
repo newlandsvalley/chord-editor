@@ -157,10 +157,7 @@ silentString stringNum =
   in
     text theFont xpos ypos (fillColor black) "x"
 
-
 -- | draw a single finger on a string
--- | at the moment, silent strings have no canvas widget to represent them
--- | (such as a cross) they are thus marked by an absence..
 finger :: Maybe FingeredString -> Int -> Int -> Drawing
 finger  mBarre stringNum fretNum  =
   let
@@ -273,7 +270,6 @@ firstFretLabel fretNo =
       ypos = nutDepth + nutyOffset + (fretDepth * 0.6)
   in
     text theFont xpos ypos (fillColor black) displayNumber
-
 
 -- | display the enire choords hape described by the fingering
 displayChord :: Fingering -> DiagramParameters -> Drawing

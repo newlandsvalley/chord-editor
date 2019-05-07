@@ -4,14 +4,16 @@ import Prelude (negate)
 import Data.Maybe (Maybe)
 
 -- | a finger position on a string
--- | n < 0  : String is silent
 -- | n == 0 : Open string is sounded
 -- | N > 0  : string is fretted at this position
 type FingerPosition = Int
 
--- | fingering is represented as an array of finger positions
--- | one for each of the 4 strings
-type Fingering = Array FingerPosition
+-- | in a bass pattern, multiple fingers are allowed on a string
+-- | an empty array represents an unplayed string
+type StringPositions = Array FingerPosition
+
+-- | overall fingering is represented as an array of string positions
+type Fingering = Array StringPositions
 
 -- | a fingered string
 type FingeredString =
@@ -38,9 +40,19 @@ silent = -1
 -- | all the open strings
 openStrings :: Fingering
 openStrings =
-  [open,open,open,open]
+  [[open],[open],[open],[open]]
 
--- | and the chord that is therefore produced
-openStringsChordName :: String
-openStringsChordName =
-  "Em11"
+-- | all the closed strings
+closedStrings :: Fingering
+closedStrings =
+  [[],[],[],[]]
+
+-- | test sample
+samplePattern :: Fingering
+samplePattern =
+  [[open],[2],[open, 4],[1,3]]
+
+-- | silent strings chord name
+closedStringsChordName :: String
+closedStringsChordName =
+  "silent"

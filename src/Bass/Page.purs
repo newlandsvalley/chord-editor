@@ -4,7 +4,7 @@ import Bass.Types
 import Prelude
 
 import DOM.HTML.Indexed.StepValue (StepValue(..))
-import Data.Array (index, updateAt)
+import Data.Array (index, null, updateAt, snoc)
 import Data.Int (toNumber, fromString)
 import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Effect (Effect)
@@ -12,7 +12,8 @@ import Effect.Aff.Class (class MonadAff)
 import Graphics.Canvas (Context2D, CanvasElement, clearRect, getCanvasElementById, getContext2D)
 import Graphics.Drawing (render) as Drawing
 import Common.Export (exportAs, scaleCanvas, toMimeType)
-import Common.Types (ExportFormat(..), CanvasPosition, Percentage)
+import Common.Types (CanvasPosition, ExportFormat(..), Percentage)
+import Common.Utils (contains, remove)
 import Bass.Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
 import Halogen as H
 import Halogen.Aff as HA
@@ -26,8 +27,6 @@ import Web.HTML.HTMLElement (offsetTop, offsetLeft)
 import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 
 type Slot = H.Slot Query Void
-
--- import Debug.Trace (spy)
 
 type State =
   { -- mAudioContext :: Maybe AudioContext
@@ -65,9 +64,9 @@ component =
     }
   where
 
-  openStringParameters :: DiagramParameters
-  openStringParameters =
-      { name : openStringsChordName
+  closedStringParameters :: DiagramParameters
+  closedStringParameters =
+      { name : closedStringsChordName
       , firstFretOffset : 0
       , primaryString : Nothing
       }
@@ -78,8 +77,8 @@ component =
       mGraphicsContext : Nothing
     , mCanvas : Nothing
     , canvasPosition : { left : 0.0, top : 0.0 }
-    , fingering : openStrings
-    , diagramParameters : openStringParameters
+    , fingering : closedStrings
+    , diagramParameters : closedStringParameters
     , exportScale : 100
     }
 
@@ -88,7 +87,7 @@ component =
     HH.div_
       [ HH.h1
          [HP.class_ (H.ClassName "center") ]
-         [HH.text "Bass Guitar Chord Editor" ]
+         [HH.text "Bass Pattern Editor" ]
       , HH.canvas
          [ HP.id_ "canvas"
          , HE.onClick canvasClickHandler
@@ -193,7 +192,7 @@ component =
       HH.text ("primary string: " <> primaryString)
   -}
 
-  handleAction ∷ Action -> H.HalogenM State Action () o m Unit
+  handleAction ∷ Action → H.HalogenM State Action () o m Unit
   handleAction = case _ of
     Init -> do
       -- audioCtx <- H.liftEffect newAudioContext
@@ -254,8 +253,8 @@ component =
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     ClearFingering -> do
-      _ <- H.modify (\st -> st { fingering = openStrings
-                                , diagramParameters = openStringParameters })
+      _ <- H.modify (\st -> st { fingering = closedStrings
+                                , diagramParameters = closedStringParameters })
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     GetImageScale scale -> do
@@ -267,9 +266,8 @@ component =
         originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
-        fileName = state.diagramParameters.name <> "_bass"
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
-      _ <- H.liftEffect $ exportAs canvas fileName mimeType
+      _ <- H.liftEffect $ exportAs canvas state.diagramParameters.name mimeType
       pure unit
 
   handleQuery :: ∀ o a. Query a -> H.HalogenM State Action () o m (Maybe a)
@@ -316,28 +314,24 @@ component =
                               , height : toNumber canvasHeight
                               }
 
+  -- | amend the fingering
+  -- | A bass guitar pattern allows muliple finger positions (including the
+  -- | open position) per string
   alterFingering :: FingeredString -> Fingering -> Fingering
   alterFingering fingeredString fingering =
     let
-      currentFret = unsafePartial $ fromJust $
-                      index fingering (fingeredString.stringNumber)
-      newFret =
-        -- if we're unfretted (fret 0) then toggle between open and silent
-        if (fingeredString.fretNumber == 0) then
-          if (currentFret == open) then
-            silent
-          else
-            open
+      currentStringPositions = unsafePartial $ fromJust $
+                        index fingering (fingeredString.stringNumber)
+      newStringPositions =
+        if (null currentStringPositions) then
+          [fingeredString.fretNumber]
+        else if (contains currentStringPositions fingeredString.fretNumber) then
+          remove currentStringPositions fingeredString.fretNumber
         else
-          -- if we're at a real fret, make open if it's occupied already
-          -- else populate the new fret
-          if (fingeredString.fretNumber == currentFret) then
-            open
-          else
-            fingeredString.fretNumber
+          snoc currentStringPositions fingeredString.fretNumber
 
       mNewFingering =
-        updateAt fingeredString.stringNumber newFret fingering
+         updateAt fingeredString.stringNumber newStringPositions fingering
     in
       fromMaybe fingering mNewFingering
 
@@ -345,6 +339,9 @@ component =
   -- | fingered string, the existing primary string state and the fingering state
   alterPrimaryFinger :: FingeredString -> Fingering -> Maybe Int -> Maybe Int
   alterPrimaryFinger fingeredString fingering mPrimary =
+    Nothing
+
+{-}
     case mPrimary of
       -- we already have a primary string
       Just stringNumber ->
@@ -371,3 +368,4 @@ component =
               Just fingeredString.stringNumber
         else
           Nothing
+-}

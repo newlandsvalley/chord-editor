@@ -8,16 +8,20 @@ module Bass.Graphics
 
 import Prelude
 
-import Color (black, white, graytone)
-import Data.Array (mapWithIndex, range)
+import Color (Color, rgb, black, white)
+import Data.Array (mapWithIndex, null, range)
 import Data.Foldable (foldl)
 import Data.Int (floor, round, toNumber)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
-import Bass.Types (DiagramParameters, Fingering, FingeredString, open, silent)
+import Bass.Types (DiagramParameters, Fingering, FingeredString,
+         StringPositions, open, silent)
 import Common.Types (MouseCoordinates)
+
+gray :: Color
+gray = rgb 160 160 160
 
 canvasWidth :: Int
 canvasWidth =
@@ -84,7 +88,7 @@ stringWidth =
 nut :: Drawing
 nut =
   filled
-    (fillColor $ graytone 0.8)
+    (fillColor gray)
     (rectangle nutxOffset nutyOffset (neckWidth + stringWidth) nutDepth)
 
 fret :: Int -> Drawing
@@ -156,19 +160,32 @@ silentString stringNum =
   in
     text theFont xpos ypos (fillColor black) "x"
 
+-- | draw all the fingers on a single string
+fingers :: Maybe Int -> Int -> StringPositions -> Drawing
+fingers mPrimary stringNum stringPositions =
+  let
+    f :: Drawing -> Int -> Drawing
+    f acc fretNum =
+      acc <> finger mPrimary stringNum fretNum
+  in
+    if (null stringPositions) then
+      finger mPrimary stringNum silent
+    else
+      foldl f mempty stringPositions
 
--- | draw a single finger on a string
--- | at the moment, silent strings have no canvas widget to represent them
--- | (such as a cross) they are thus marked by an absence..
+-- | draw a single finger on a string.
 finger :: Maybe Int -> Int -> Int -> Drawing
 finger mPrimary stringNum fretNum  =
   let
     isPrimaryString =
+       true
+      {-}
       case mPrimary of
         Just s ->
           s == stringNum
         _ ->
           false
+      -}
   in
     if
       (fretNum > fretCount) ||
@@ -207,13 +224,13 @@ secondaryFinger stringNum fretNum =
     xpos = nutxOffset + (toNumber stringNum * stringSeparation) - (side / 2.0)
   in
     filled
-      (fillColor $ graytone 0.8)
+      (fillColor gray)
       (rectangle xpos ypos side side)
 
 -- | draw the complete fingering
-fingering :: Array Int -> Maybe Int -> Drawing
+fingering :: Fingering-> Maybe Int -> Drawing
 fingering fingerSpec mPrimary =
-  foldl (<>) mempty $ mapWithIndex (finger mPrimary) fingerSpec
+  foldl (<>) mempty $ mapWithIndex (fingers mPrimary) fingerSpec
 
 -- | work out a fingered string from the mouse click coordinates
 fingeredString :: MouseCoordinates -> FingeredString
