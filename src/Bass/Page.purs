@@ -4,7 +4,7 @@ import Bass.Types
 import Prelude
 
 import DOM.HTML.Indexed.StepValue (StepValue(..))
-import Data.Array (index, null, updateAt, snoc)
+import Data.Array (filter, head, index, null, updateAt, snoc)
 import Data.Int (toNumber, fromString)
 import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Effect (Effect)
@@ -13,7 +13,6 @@ import Graphics.Canvas (Context2D, CanvasElement, clearRect, getCanvasElementByI
 import Graphics.Drawing (render) as Drawing
 import Common.Export (exportAs, scaleCanvas, toMimeType)
 import Common.Types (CanvasPosition, ExportFormat(..), Percentage)
-import Common.Utils (contains, remove)
 import Bass.Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
 import Halogen as H
 import Halogen.Aff as HA
@@ -29,7 +28,7 @@ import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 type Slot = H.Slot Query Void
 
 type State =
-  { -- mAudioContext :: Maybe AudioContext
+  {
     mGraphicsContext :: Maybe Context2D
   , mCanvas :: Maybe CanvasElement
   , canvasPosition :: CanvasPosition
@@ -68,7 +67,6 @@ component =
   closedStringParameters =
       { name : closedStringsChordName
       , firstFretOffset : 0
-      , primaryString : Nothing
       }
 
   initialState :: i -> State
@@ -180,17 +178,7 @@ component =
             , HP.step (Step 25.0)
             , HP.value (show state.exportScale)
             ]
-
         ]
-  {-
-  renderDebug :: State -> H.ComponentHTML Action () Aff
-  renderDebug state =
-    let
-      primaryString =
-        maybe "nothing" show state.diagramParameters.primaryString
-    in
-      HH.text ("primary string: " <> primaryString)
-  -}
 
   handleAction ∷ Action → H.HalogenM State Action () o m Unit
   handleAction = case _ of
@@ -226,11 +214,7 @@ component =
             bar = spy "fret:" fstring.fretNumber
             -}
             newFingering = alterFingering fstring state.fingering
-            newPrimaryString =
-              alterPrimaryFinger fstring state.fingering state.diagramParameters.primaryString
-            newParams = state.diagramParameters { primaryString = newPrimaryString }
-          _ <- H.modify (\st -> st { fingering = newFingering
-                                    , diagramParameters = newParams })
+          _ <- H.modify (\st -> st { fingering = newFingering })
           _ <- handleQuery (DisplayFingering unit)
           pure unit
         else do
@@ -282,11 +266,6 @@ component =
         canvasElement = unsafePartial (fromJust mCanvasElement)
       left <- H.liftEffect $ offsetLeft canvasElement
       top <- H.liftEffect $ offsetTop canvasElement
-      {-}
-      let
-        foo = spy "Left:" left
-        bar = spy "Top:" top
-      -}
       _ <- H.modify (\st -> st { canvasPosition  = { left, top } })
       pure (Just next)
     DisplayFingering next -> do
@@ -314,58 +293,65 @@ component =
                               , height : toNumber canvasHeight
                               }
 
-  -- | amend the fingering
-  -- | A bass guitar pattern allows muliple finger positions (including the
-  -- | open position) per string
   alterFingering :: FingeredString -> Fingering -> Fingering
   alterFingering fingeredString fingering =
     let
       currentStringPositions = unsafePartial $ fromJust $
                         index fingering (fingeredString.stringNumber)
       newStringPositions =
+        -- silent string
         if (null currentStringPositions) then
-          [fingeredString.fretNumber]
-        else if (contains currentStringPositions fingeredString.fretNumber) then
-          remove currentStringPositions fingeredString.fretNumber
+          [{ fret: fingeredString.fretNumber
+           , status: Primary
+           }]
         else
-          snoc currentStringPositions fingeredString.fretNumber
+          let
+            maybeFingering =
+              extract currentStringPositions fingeredString.fretNumber
+          in
+            case maybeFingering of
+              Just afingering ->
+                -- we've selected an existing open string to remove it
+                if (isOpenFret afingering) then
+                  remove currentStringPositions fingeredString.fretNumber
+                else
+                  case afingering.status of
+                    -- we've selected an existing primary fret so
+                    -- cycle the status to Secondary
+                    Primary ->
+                      setSecondaryStatus currentStringPositions fingeredString.fretNumber
+                    -- we've selected an existing secondary fret to remove it
+                    Secondary ->
+                      remove currentStringPositions fingeredString.fretNumber
+              _ ->
+                -- add a completely new fretted position
+                snoc currentStringPositions
+                   { fret: fingeredString.fretNumber
+                   , status : Primary
+                   }
 
       mNewFingering =
          updateAt fingeredString.stringNumber newStringPositions fingering
     in
       fromMaybe fingering mNewFingering
 
-  -- | update the state of the primary fingered string according to the newly
-  -- | fingered string, the existing primary string state and the fingering state
-  alterPrimaryFinger :: FingeredString -> Fingering -> Maybe Int -> Maybe Int
-  alterPrimaryFinger fingeredString fingering mPrimary =
-    Nothing
 
-{-}
-    case mPrimary of
-      -- we already have a primary string
-      Just stringNumber ->
-        -- remove it only if the string number matches
-        if (fingeredString.stringNumber == stringNumber) then
-          Nothing
-        else
-        -- otherwise no action
-          mPrimary
-      -- we don't have an existing primary string
-      _ ->
-        -- we only respond if the new fingered string is at a fret
-        if (fingeredString.fretNumber > 0) then
-          let
-            currentFret = fromMaybe (-1) $ index fingering (fingeredString.stringNumber)
-          in
-            -- however if the new fingered string is already fretted, we're removing
-            -- or otherwise replacing a secondary string - so no action
-            -- this is the degenerate case
-            if (currentFret > 0) then
-              Nothing
-            -- otherwise we've found a new primary string
-            else
-              Just fingeredString.stringNumber
-        else
-          Nothing
--}
+-- | extract, if we can, any finger position on the string in question at the
+-- | current fret
+extract :: StringPositions -> FretNumber -> Maybe FingerPosition
+extract stringPositions fretNumber =
+  head $ filter (\{fret, status} -> fret == fretNumber) stringPositions
+
+-- | remove, if we can, any finger position on the string in question at the
+-- | current fret
+remove :: StringPositions -> FretNumber -> StringPositions
+remove stringPositions fretNumber =
+  filter (\{fret, status} -> fret /= fretNumber) stringPositions
+
+-- | set the status of the fingering at the required fret to 'Secondary'
+setSecondaryStatus :: StringPositions -> FretNumber -> StringPositions
+setSecondaryStatus stringPositions fretNumber =
+  snoc (remove stringPositions fretNumber)
+     { fret: fretNumber
+     , status : Secondary
+     }

@@ -8,20 +8,22 @@ module Bass.Graphics
 
 import Prelude
 
-import Color (Color, rgb, black, white)
+import Color (black, white, graytone)
 import Data.Array (mapWithIndex, null, range)
 import Data.Foldable (foldl)
 import Data.Int (floor, round, toNumber)
-import Data.Maybe (Maybe)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
-import Bass.Types (DiagramParameters, Fingering, FingeredString,
-         FingerPosition, StringPositions, open, silent)
+import Bass.Types (DiagramParameters, Fingering, FingeredString, FingerPosition,
+           FingerStatus(..), FretNumber, StringPositions, open)
 import Common.Types (MouseCoordinates)
 
-gray :: Color
-gray = rgb 160 160 160
+-- | a private manufactured position representing a silent (unplayed) string
+-- | unavailable as a finger position to the rest of the app
+silent :: FingerPosition
+silent =
+  { fret : -1, status : Primary }
 
 canvasWidth :: Int
 canvasWidth =
@@ -88,7 +90,7 @@ stringWidth =
 nut :: Drawing
 nut =
   filled
-    (fillColor gray)
+    (fillColor $ graytone 0.8)
     (rectangle nutxOffset nutyOffset (neckWidth + stringWidth) nutDepth)
 
 fret :: Int -> Drawing
@@ -161,54 +163,44 @@ silentString stringNum =
     text theFont xpos ypos (fillColor black) "x"
 
 -- | draw all the fingers on a single string
-fingers :: Maybe Int -> Int -> StringPositions -> Drawing
-fingers mPrimary stringNum stringPositions =
+fingers :: Int -> StringPositions -> Drawing
+fingers stringNum stringPositions =
   let
     f :: Drawing -> FingerPosition -> Drawing
     f acc fretNum =
-      acc <> finger mPrimary stringNum fretNum
+      acc <> finger stringNum fretNum
   in
     if (null stringPositions) then
-      finger mPrimary stringNum silent
+      finger stringNum silent
     else
       foldl f mempty stringPositions
 
 -- | draw a single finger on a string.
-finger :: Maybe Int -> Int -> FingerPosition -> Drawing
-finger mPrimary stringNum fretNum  =
-  let
-    isPrimaryString =
-       true
-      {-}
-      case mPrimary of
-        Just s ->
-          s == stringNum
-        _ ->
-          false
-      -}
-  in
-    if
-      (fretNum > fretCount) ||
-      (stringNum < 0) || (stringNum >= stringCount)
-    then
-      mempty
-    else if (fretNum == open) then
-      openString stringNum
-    else if (fretNum == silent) then
-      silentString stringNum
-    else
-      if isPrimaryString then
-        primaryFinger stringNum fretNum
-      else
-        secondaryFinger stringNum fretNum
+finger :: Int -> FingerPosition -> Drawing
+finger stringNum fingerPosition  =
+  if
+    (fingerPosition.fret > fretCount) ||
+    (stringNum < 0) || (stringNum >= stringCount)
+  then
+    mempty
+  else if (fingerPosition.fret == open.fret) then
+    openString stringNum
+  else if (fingerPosition.fret == silent.fret) then
+    silentString stringNum
+  else
+    case fingerPosition.status of
+      Primary ->
+        primaryFinger stringNum fingerPosition.fret
+      Secondary ->
+        secondaryFinger stringNum fingerPosition.fret
 
 -- | a primary finger is the prominent note on the bass and is the first
 -- | string fingered
-primaryFinger :: Int -> Int -> Drawing
-primaryFinger stringNum fretNum =
+primaryFinger :: Int -> FretNumber -> Drawing
+primaryFinger stringNum fretNumber =
   let
     radius = 0.6 * fretDepth / 2.0
-    ypos = nutDepth + nutyOffset + (toNumber fretNum * fretDepth) - (radius + 2.0)
+    ypos = nutDepth + nutyOffset + (toNumber fretNumber * fretDepth) - (radius + 2.0)
     xpos = nutxOffset + (toNumber stringNum * stringSeparation)
   in
     filled
@@ -216,21 +208,21 @@ primaryFinger stringNum fretNum =
       (circle xpos ypos radius)
 
 -- | a secondary finger is a subsidiary string fingered after the primary one
-secondaryFinger :: Int -> Int -> Drawing
-secondaryFinger stringNum fretNum =
+secondaryFinger :: Int -> FretNumber -> Drawing
+secondaryFinger stringNum fretNumber =
   let
     side = fretDepth / 2.0
-    ypos = nutDepth + nutyOffset + (toNumber fretNum * fretDepth) - (side + 4.0)
+    ypos = nutDepth + nutyOffset + (toNumber fretNumber * fretDepth) - (side + 4.0)
     xpos = nutxOffset + (toNumber stringNum * stringSeparation) - (side / 2.0)
   in
     filled
-      (fillColor gray)
+      (fillColor $ graytone 0.5)
       (rectangle xpos ypos side side)
 
 -- | draw the complete fingering
-fingering :: Fingering-> Maybe Int -> Drawing
-fingering fingerSpec mPrimary =
-  foldl (<>) mempty $ mapWithIndex (fingers mPrimary) fingerSpec
+fingering :: Fingering -> Drawing
+fingering fingerSpec =
+  foldl (<>) mempty $ mapWithIndex fingers fingerSpec
 
 -- | work out a fingered string from the mouse click coordinates
 fingeredString :: MouseCoordinates -> FingeredString
@@ -297,5 +289,5 @@ displayChord chord params =
         nut <>
         frets <>
         strings <>
-        (fingering chord params.primaryString) <>
+        (fingering chord) <>
         firstFretLabel params.firstFretOffset
