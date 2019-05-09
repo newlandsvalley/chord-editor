@@ -250,8 +250,9 @@ component =
         originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
+        fileName = state.diagramParameters.name <> "_bass"
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
-      _ <- H.liftEffect $ exportAs canvas state.diagramParameters.name mimeType
+      _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
 
   handleQuery :: ∀ o a. Query a -> H.HalogenM State Action () o m (Maybe a)
