@@ -133,7 +133,7 @@ blackKey fingering keyNumber =
     keyedCircle =
       if (contains fingering keyNumber) then
         smallCircle
-          white
+          black
           (xOffset + (blackKeyWidth * 0.5))
           (yOffset + (blackKeyLength * 0.6))
       else

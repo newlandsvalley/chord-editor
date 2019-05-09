@@ -17,7 +17,7 @@ import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
 import Bass.Types (DiagramParameters, Fingering, FingeredString,
-         StringPositions, open, silent)
+         FingerPosition, StringPositions, open, silent)
 import Common.Types (MouseCoordinates)
 
 gray :: Color
@@ -164,7 +164,7 @@ silentString stringNum =
 fingers :: Maybe Int -> Int -> StringPositions -> Drawing
 fingers mPrimary stringNum stringPositions =
   let
-    f :: Drawing -> Int -> Drawing
+    f :: Drawing -> FingerPosition -> Drawing
     f acc fretNum =
       acc <> finger mPrimary stringNum fretNum
   in
@@ -174,7 +174,7 @@ fingers mPrimary stringNum stringPositions =
       foldl f mempty stringPositions
 
 -- | draw a single finger on a string.
-finger :: Maybe Int -> Int -> Int -> Drawing
+finger :: Maybe Int -> Int -> FingerPosition -> Drawing
 finger mPrimary stringNum fretNum  =
   let
     isPrimaryString =

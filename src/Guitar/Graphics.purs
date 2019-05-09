@@ -196,8 +196,8 @@ barre mFingeredString =
       let
         xstart = nutxOffset + (toNumber fs.stringNumber * stringSeparation) - (stringSeparation / 4.0)
         xlen = toNumber (stringCount - fs.stringNumber- 1) * stringSeparation + (stringSeparation / 2.0)
-        ystart = nutDepth + nutyOffset + (toNumber fs.fretNumber * fretDepth) - (fretDepth / 2.0)
-        ylen = cellSize / 7.0
+        ystart = nutDepth + nutyOffset + (toNumber fs.fretNumber * fretDepth) - (fretDepth / 1.75)
+        ylen = cellSize / 2.5
       in
         filled
           (fillColor black)
