@@ -19,12 +19,16 @@ type FingeredString =
   , fretNumber  :: FingerPosition
   }
 
+-- | a barré
+type Barre =
+  Maybe FingeredString
+
 -- | parameters other than fingering that show up on the chord diagram
 -- | and which are governed by HTML input boxes of some kind
 type DiagramParameters =
   { name :: String                 -- the chord name
   , firstFretOffset :: Int         -- which fret on the guitar does fret 1 represent
-  , barre :: Maybe FingeredString  -- a barré at this fret from this string to
+  , barre :: Barre                 -- a barré at this fret from this string to
                                    -- the final string (5)
   }
 

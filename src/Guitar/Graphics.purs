@@ -17,7 +17,7 @@ import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
-import Guitar.Types (DiagramParameters, Fingering, FingeredString, open, silent)
+import Guitar.Types (DiagramParameters, Fingering, FingeredString, Barre, open, silent)
 import Common.Types (MouseCoordinates)
 
 canvasWidth :: Int
@@ -158,7 +158,7 @@ silentString stringNum =
     text theFont xpos ypos (fillColor black) "x"
 
 -- | draw a single finger on a string
-finger :: Maybe FingeredString -> Int -> Int -> Drawing
+finger :: Barre -> Int -> Int -> Drawing
 finger  mBarre stringNum fretNum  =
   let
     radius = 0.7 * fretDepth / 2.0
@@ -184,12 +184,12 @@ finger  mBarre stringNum fretNum  =
 
 
 -- | draw the complete fingering
-fingering :: Array Int -> Maybe FingeredString -> Drawing
+fingering :: Array Int -> Barre -> Drawing
 fingering fingerSpec mBarre =
   foldl (<>) mempty $ mapWithIndex (finger mBarre) fingerSpec
 
 -- | display the barré (if present)
-barre :: Maybe FingeredString -> Drawing
+barre :: Barre -> Drawing
 barre mFingeredString =
   case mFingeredString of
     Just fs ->

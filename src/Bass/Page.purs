@@ -4,7 +4,7 @@ import Bass.Types
 import Prelude
 
 import DOM.HTML.Indexed.StepValue (StepValue(..))
-import Data.Array (filter, head, index, null, updateAt, snoc)
+import Data.Array (filter, head, index, length, null, updateAt, snoc)
 import Data.Int (toNumber, fromString)
 import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Effect (Effect)
@@ -14,6 +14,7 @@ import Graphics.Drawing (render) as Drawing
 import Common.Export (exportAs, scaleCanvas, toMimeType)
 import Common.Types (CanvasPosition, ExportFormat(..), Percentage)
 import Bass.Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
+import Bass.Audio (playChord)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
@@ -24,6 +25,8 @@ import Partial.Unsafe (unsafePartial)
 import Web.DOM.ParentNode (QuerySelector(..))
 import Web.HTML.HTMLElement (offsetTop, offsetLeft)
 import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
+import Audio.SoundFont (Instrument, loadRemoteSoundFonts)
+import Data.Midi.Instrument (InstrumentName(..))
 
 type Slot = H.Slot Query Void
 
@@ -35,6 +38,7 @@ type State =
   , fingering :: Fingering
   , diagramParameters :: DiagramParameters
   , exportScale :: Percentage
+  , instruments :: Array Instrument
   }
 
 data Action =
@@ -45,6 +49,7 @@ data Action =
   | GetFirstFretNumber String
   | GetImageScale Percentage
   | Export ExportFormat
+  | PlayChord
 
 data Query a =
     GetCanvasOffset a
@@ -78,6 +83,7 @@ component =
     , fingering : closedStrings
     , diagramParameters : closedStringParameters
     , exportScale : 100
+    , instruments : []
     }
 
   render :: State -> H.ComponentHTML Action () m
@@ -102,6 +108,7 @@ component =
         [ renderClearFingeringButton state
         , renderExportPNGButton state
         ]
+      , renderPlayButton state
       ]
 
   renderClearFingeringButton :: State -> H.ComponentHTML Action () m
@@ -180,11 +187,31 @@ component =
             ]
         ]
 
+  renderPlayButton :: State -> H.ComponentHTML Action () m
+  renderPlayButton state =
+    let
+      enabled =
+        (length state.instruments > 0) &&
+        (not $ isSilent state.fingering )
+      className =
+        if enabled then "hoverable" else "unhoverable"
+    in
+      HH.div_
+        [ HH.button
+            [ HE.onClick \_ -> Just PlayChord
+            , HP.class_ $ ClassName className
+            , HP.enabled enabled
+            ]
+            [ HH.text "play" ]
+        ]
+
+
   handleAction ∷ Action → H.HalogenM State Action () o m Unit
   handleAction = case _ of
     Init -> do
       -- audioCtx <- H.liftEffect newAudioContext
       state <- H.get
+      instruments <- H.liftAff $  loadRemoteSoundFonts  [ElectricBassPick]
       mCanvas <- H.liftEffect $ getCanvasElementById "canvas"
       let
         canvas = unsafePartial (fromJust mCanvas)
@@ -192,7 +219,9 @@ component =
       graphicsCtx <- H.liftEffect  $ getContext2D canvas
       -- _ <- H.liftEffect $ Drawing.render graphicsCtx chordDisplay
       _ <- H.modify (\st -> st { mGraphicsContext = Just graphicsCtx
-                               , mCanvas = mCanvas })
+                               , mCanvas = mCanvas
+                               , instruments = instruments
+                               })
       _ <- handleQuery (GetCanvasOffset unit)
       _ <- handleQuery (DisplayFingering unit)
       pure unit
@@ -254,8 +283,14 @@ component =
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
       _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
+    PlayChord -> do
+      state <- H.get
+      H.liftEffect $ playChord
+        state.fingering
+        state.diagramParameters.firstFretOffset
+        state.instruments
 
-  handleQuery :: ∀ o a. Query a -> H.HalogenM State Action () o m (Maybe a)
+  handleQuery :: ∀ a. Query a -> H.HalogenM State Action () o m (Maybe a)
   handleQuery = case _ of
     -- get the coordinates of the upper left hand corner of the canvas we've
     -- just built.  We need this to find accurate mouse click references relative
@@ -356,3 +391,7 @@ setSecondaryStatus stringPositions fretNumber =
      { fret: fretNumber
      , status : Secondary
      }
+
+isSilent :: Fingering -> Boolean
+isSilent fingering =
+  null $ join fingering

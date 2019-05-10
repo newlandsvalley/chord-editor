@@ -17,14 +17,18 @@ import Graphics.Canvas (Context2D, CanvasElement,
          clearRect, getCanvasElementById, getContext2D)
 import Graphics.Drawing (render) as Drawing
 import Data.Maybe (Maybe(..), fromJust, fromMaybe, isJust)
-import Data.Array (cons, filter)
+import Data.Array (cons, filter, length)
 import Partial.Unsafe (unsafePartial)
 import Data.Int (toNumber, fromString)
 import Piano.Graphics (canvasHeight, canvasWidth, displayChord, fingeredKey)
 import Piano.Types (DiagramParameters, Fingering, unfingered)
+import Piano.Audio (playChord)
 import Common.Types (ExportFormat(..), CanvasPosition, Percentage)
 import Common.Export (exportAs, scaleCanvas, toMimeType)
 import Common.Utils (contains)
+import Audio.SoundFont (Instrument, loadRemoteSoundFonts)
+import Data.Midi.Instrument (InstrumentName(..))
+
 
 type Slot = H.Slot Query Void
 
@@ -38,6 +42,7 @@ type State =
   , fingering :: Fingering
   , diagramParameters :: DiagramParameters
   , exportScale :: Percentage
+  , instruments :: Array Instrument
   }
 
 data Action =
@@ -47,6 +52,7 @@ data Action =
   | GetChordName String
   | GetImageScale Percentage
   | Export ExportFormat
+  | PlayChord
 
 data Query a =
     GetCanvasOffset a
@@ -79,6 +85,7 @@ component =
     , fingering : unfingered
     , diagramParameters : initialParameters
     , exportScale : 100
+    , instruments : []
     }
 
   render :: State -> H.ComponentHTML Action () m
@@ -102,6 +109,7 @@ component =
         [ renderClearFingeringButton state
         , renderExportPNGButton state
         ]
+      , renderPlayButton state
       ]
 
   renderClearFingeringButton :: State -> H.ComponentHTML Action () m
@@ -162,11 +170,30 @@ component =
             ]
         ]
 
+  renderPlayButton :: State -> H.ComponentHTML Action () m
+  renderPlayButton state =
+    let
+      enabled =
+        (length state.instruments > 0) &&
+        (length state.fingering > 0)
+      className =
+        if enabled then "hoverable" else "unhoverable"
+    in
+      HH.div_
+        [ HH.button
+          [ HE.onClick \_ -> Just PlayChord
+          , HP.class_ $ ClassName className
+          , HP.enabled enabled
+          ]
+          [ HH.text "play" ]
+        ]
+
   handleAction ∷ Action → H.HalogenM State Action () o m Unit
   handleAction = case _ of
     Init -> do
       -- audioCtx <- H.liftEffect newAudioContext
       state <- H.get
+      instruments <- H.liftAff $  loadRemoteSoundFonts  [AcousticGrandPiano]
       mCanvas <- H.liftEffect $ getCanvasElementById "canvas"
       let
         canvas = unsafePartial (fromJust mCanvas)
@@ -174,7 +201,9 @@ component =
       graphicsCtx <- H.liftEffect  $ getContext2D canvas
       -- _ <- H.liftEffect $ Drawing.render graphicsCtx chordDisplay
       _ <- H.modify (\st -> st { mGraphicsContext = Just graphicsCtx
-                               , mCanvas = mCanvas })
+                               , mCanvas = mCanvas
+                               , instruments = instruments
+                               })
       _ <- handleQuery (GetCanvasOffset unit)
       _ <- handleQuery (DisplayFingering unit)
       pure unit
@@ -228,8 +257,11 @@ component =
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
       _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
+    PlayChord -> do
+      state <- H.get
+      H.liftEffect $ playChord state.fingering state.instruments
 
-  handleQuery :: ∀ o a. Query a -> H.HalogenM State Action () o m (Maybe a)
+  handleQuery :: ∀ a. Query a -> H.HalogenM State Action () o m (Maybe a)
   handleQuery = case _ of
     -- get the coordinates of the upper left hand corner of the canvas we've
     -- just built.  We need this to find accurate mouse click references relative
