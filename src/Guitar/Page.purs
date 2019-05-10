@@ -61,6 +61,7 @@ data Action =
 
 data Query a =
     GetCanvasOffset a
+  | LoadInstruments a
   | EditFingering a
   | DisplayFingering a
 
@@ -241,7 +242,6 @@ component =
   handleAction = case _ of
     Init -> do
       state <- H.get
-      instruments <- H.liftAff $  loadRemoteSoundFonts  [AcousticGuitarSteel]
       mCanvas <- H.liftEffect $ getCanvasElementById "canvas"
       let
         canvas = unsafePartial (fromJust mCanvas)
@@ -250,10 +250,10 @@ component =
       -- _ <- H.liftEffect $ Drawing.render graphicsCtx chordDisplay
       _ <- H.modify (\st -> st { mGraphicsContext = Just graphicsCtx
                                , mCanvas = mCanvas
-                               , instruments = instruments
                                })
       _ <- handleQuery (GetCanvasOffset unit)
       _ <- handleQuery (DisplayFingering unit)
+      _ <- handleQuery (LoadInstruments unit)
       pure unit
     MouseDown cx cy -> do
       state <- H.get
@@ -345,6 +345,10 @@ component =
         bar = spy "Top:" top
       -}
       _ <- H.modify (\st -> st { canvasPosition  = { left, top } })
+      pure (Just next)
+    LoadInstruments next -> do
+      instruments <- H.liftAff $  loadRemoteSoundFonts  [AcousticGuitarSteel]
+      _ <- H.modify (\st -> st { instruments = instruments })
       pure (Just next)
     EditFingering next -> do
       state <- H.get

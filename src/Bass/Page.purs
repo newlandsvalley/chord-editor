@@ -53,6 +53,7 @@ data Action =
 
 data Query a =
     GetCanvasOffset a
+  | LoadInstruments a
   | DisplayFingering a
 
 component :: ∀ i o m. MonadAff m => H.Component HH.HTML Query i o m
@@ -209,9 +210,7 @@ component =
   handleAction ∷ Action → H.HalogenM State Action () o m Unit
   handleAction = case _ of
     Init -> do
-      -- audioCtx <- H.liftEffect newAudioContext
       state <- H.get
-      instruments <- H.liftAff $  loadRemoteSoundFonts  [ElectricBassPick]
       mCanvas <- H.liftEffect $ getCanvasElementById "canvas"
       let
         canvas = unsafePartial (fromJust mCanvas)
@@ -220,10 +219,10 @@ component =
       -- _ <- H.liftEffect $ Drawing.render graphicsCtx chordDisplay
       _ <- H.modify (\st -> st { mGraphicsContext = Just graphicsCtx
                                , mCanvas = mCanvas
-                               , instruments = instruments
                                })
       _ <- handleQuery (GetCanvasOffset unit)
       _ <- handleQuery (DisplayFingering unit)
+      _ <- handleQuery (LoadInstruments unit)
       pure unit
     EditFingering cx cy -> do
       state <- H.get
@@ -303,6 +302,10 @@ component =
       left <- H.liftEffect $ offsetLeft canvasElement
       top <- H.liftEffect $ offsetTop canvasElement
       _ <- H.modify (\st -> st { canvasPosition  = { left, top } })
+      pure (Just next)
+    LoadInstruments next -> do
+      instruments <- H.liftAff $  loadRemoteSoundFonts  [ElectricBassPick]
+      _ <- H.modify (\st -> st { instruments = instruments })
       pure (Just next)
     DisplayFingering next -> do
       state <- H.get
