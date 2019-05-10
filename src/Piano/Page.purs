@@ -27,7 +27,7 @@ import Common.Types (ExportFormat(..), CanvasPosition, Percentage)
 import Common.Export (exportAs, scaleCanvas, toMimeType)
 import Common.Utils (contains)
 import Audio.SoundFont (Instrument, loadRemoteSoundFonts)
-import Data.Midi.Instrument (InstrumentName(..))
+import Data.Midi.Instrument (InstrumentName(AcousticGrandPiano))
 
 
 type Slot = H.Slot Query Void

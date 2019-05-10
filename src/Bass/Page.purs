@@ -26,7 +26,7 @@ import Web.DOM.ParentNode (QuerySelector(..))
 import Web.HTML.HTMLElement (offsetTop, offsetLeft)
 import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 import Audio.SoundFont (Instrument, loadRemoteSoundFonts)
-import Data.Midi.Instrument (InstrumentName(..))
+import Data.Midi.Instrument (InstrumentName (ElectricBassPick))
 
 type Slot = H.Slot Query Void
 
