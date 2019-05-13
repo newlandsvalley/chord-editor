@@ -6,6 +6,9 @@
 /.psc-package/
 /deprecated/
 /dist/chordeditor.js
+/dist/chordeditormin.js
 /.psc*
 /.purs*
 /.psa*
+optimise.sh
+package-lock.json
