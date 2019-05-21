@@ -16,7 +16,7 @@ import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (length) as Str
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, font, sansSerif)
-import Piano.Types (DiagramParameters, Fingering)
+import Piano.Types (ChordShape, Fingering)
 import Common.Types (MouseCoordinates)
 import Common.Utils (contains)
 
@@ -210,8 +210,8 @@ fingeredKey coords =
         index whiteKeyPositions keyPos
 
 -- | display the entire chord shape described by the fingering
-displayChord :: Fingering -> DiagramParameters -> Drawing
-displayChord chord params =
-  title params.name <>
-    whiteKeys chord <>
-    blackKeys chord
+displayChord :: ChordShape -> Drawing
+displayChord chord =
+  title chord.name <>
+    whiteKeys chord.fingering <>
+    blackKeys chord.fingering

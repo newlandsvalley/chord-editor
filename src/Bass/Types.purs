@@ -34,11 +34,11 @@ type FingeredString =
   , fretNumber  :: FretNumber
   }
 
--- | parameters other than fingering that show up on the chord diagram
--- | and which are governed by HTML input boxes of some kind
-type DiagramParameters =
+-- | The editable chord shape of the bass
+type ChordShape =
   { name :: String             -- the chord name
   , firstFretOffset :: Int     -- which fret on the guitar does fret 1 represent
+  , fingering :: Fingering     -- the fretboard fingering
   }
 
 -- | an open string

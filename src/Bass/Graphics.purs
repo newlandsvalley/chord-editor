@@ -15,7 +15,7 @@ import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
-import Bass.Types (DiagramParameters, Fingering, FingeredString, FingerPosition,
+import Bass.Types (ChordShape, Fingering, FingeredString, FingerPosition,
            FingerStatus(..), FretNumber, StringPositions, open)
 import Common.Types (MouseCoordinates)
 
@@ -283,11 +283,11 @@ firstFretLabel fretNo =
 
 
 -- | display the enire choords hape described by the fingering
-displayChord :: Fingering -> DiagramParameters -> Drawing
-displayChord chord params =
-  title params.name <>
+displayChord :: ChordShape -> Drawing
+displayChord chord  =
+  title chord.name <>
         nut <>
         frets <>
         strings <>
-        (fingering chord) <>
-        firstFretLabel params.firstFretOffset
+        (fingering chord.fingering) <>
+        firstFretLabel chord.firstFretOffset

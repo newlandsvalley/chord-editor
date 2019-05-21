@@ -35,8 +35,7 @@ type State =
     mGraphicsContext :: Maybe Context2D
   , mCanvas :: Maybe CanvasElement
   , canvasPosition :: CanvasPosition
-  , fingering :: Fingering
-  , diagramParameters :: DiagramParameters
+  , chordShape :: ChordShape
   , exportScale :: Percentage
   , instruments :: Array Instrument
   }
@@ -69,20 +68,20 @@ component =
     }
   where
 
-  closedStringParameters :: DiagramParameters
-  closedStringParameters =
+  closedStringShape :: ChordShape
+  closedStringShape =
       { name : closedStringsChordName
       , firstFretOffset : 0
+      , fingering : closedStrings
       }
 
   initialState :: i -> State
   initialState _ =
-    { -- mAudioContext : Nothing
+    {
       mGraphicsContext : Nothing
     , mCanvas : Nothing
     , canvasPosition : { left : 0.0, top : 0.0 }
-    , fingering : closedStrings
-    , diagramParameters : closedStringParameters
+    , chordShape : closedStringShape
     , exportScale : 100
     , instruments : []
     }
@@ -139,7 +138,7 @@ component =
         [ HH.text "chord name:" ]
       , HH.input
           [ HE.onValueInput  (Just <<< GetChordName)
-          , HP.value state.diagramParameters.name
+          , HP.value state.chordShape.name
           , HP.type_ HP.InputText
           , HP.id_  "chord-name-edit"
           , HP.class_ $ ClassName "text-input"
@@ -155,7 +154,7 @@ component =
         [ HH.text "first fret number:" ]
       , HH.input
           [ HE.onValueInput  (Just <<< GetFirstFretNumber)
-          , HP.value (show state.diagramParameters.firstFretOffset)
+          , HP.value (show state.chordShape.firstFretOffset)
           , HP.type_ HP.InputNumber
           , HP.min 0.0
           , HP.max 9.0
@@ -193,7 +192,7 @@ component =
     let
       enabled =
         (length state.instruments > 0) &&
-        (not $ isSilent state.fingering )
+        (not $ isSilent state.chordShape.fingering )
       className =
         if enabled then "hoverable" else "unhoverable"
     in
@@ -241,8 +240,9 @@ component =
             foo = spy "string:" fstring.stringNumber
             bar = spy "fret:" fstring.fretNumber
             -}
-            newFingering = alterFingering fstring state.fingering
-          _ <- H.modify (\st -> st { fingering = newFingering })
+            newFingering = alterFingering fstring state.chordShape.fingering
+            newShape = state.chordShape {fingering = newFingering}
+          _ <- H.modify (\st -> st { chordShape = newShape })
           _ <- handleQuery (DisplayFingering unit)
           pure unit
         else do
@@ -250,8 +250,8 @@ component =
     GetChordName name -> do
       state <- H.get
       let
-        newParams = state.diagramParameters { name = name }
-        newState = state { diagramParameters = newParams }
+        newShape = state.chordShape { name = name }
+        newState = state { chordShape = newShape }
       _ <- H.put newState
       _ <- handleQuery (DisplayFingering unit)
       pure unit
@@ -259,14 +259,13 @@ component =
       state <- H.get
       let
         fret = fromMaybe 0 $ fromString numStr
-        newParams = state.diagramParameters { firstFretOffset = fret }
-        newState = state { diagramParameters = newParams }
+        newShape = state.chordShape { firstFretOffset = fret }
+        newState = state { chordShape = newShape }
       _ <- H.put newState
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     ClearFingering -> do
-      _ <- H.modify (\st -> st { fingering = closedStrings
-                                , diagramParameters = closedStringParameters })
+      _ <- H.modify (\st -> st { chordShape = closedStringShape })
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     GetImageScale scale -> do
@@ -278,15 +277,15 @@ component =
         originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
-        fileName = state.diagramParameters.name <> "_bass"
+        fileName = state.chordShape.name <> "_bass"
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
       _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
     PlayChord -> do
       state <- H.get
       H.liftEffect $ playChord
-        state.fingering
-        state.diagramParameters.firstFretOffset
+        state.chordShape.fingering
+        state.chordShape.firstFretOffset
         state.instruments
 
   handleQuery :: ∀ a. Query a -> H.HalogenM State Action () o m (Maybe a)
@@ -315,7 +314,7 @@ component =
       _ <- H.liftEffect do
         clearCanvas state
         Drawing.render graphicsCtx
-                  $ displayChord state.fingering state.diagramParameters
+                  $ displayChord state.chordShape
       pure (Just next)
 
   canvasClickHandler :: MouseEvent -> Maybe Action

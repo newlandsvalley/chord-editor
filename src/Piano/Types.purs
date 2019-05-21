@@ -10,10 +10,10 @@ type FingerPosition = Int
 -- | otherwise its length is the number of fingers in use.
 type Fingering = Array FingerPosition
 
--- | parameters other than fingering that show up on the chord diagram
--- | and which are governed by HTML input boxes of some kind
-type DiagramParameters =
+-- | The editable chord shape of the piano
+type ChordShape =
   { name :: String             -- the chord name
+  , fingering :: Fingering
   }
 
 unfingered :: Fingering

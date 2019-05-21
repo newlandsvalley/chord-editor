@@ -17,7 +17,7 @@ import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
-import Guitar.Types (DiagramParameters, Fingering, FingeredString, Barre, open, silent)
+import Guitar.Types (ChordShape, FingeredString, Barre, open, silent)
 import Common.Types (MouseCoordinates)
 
 canvasWidth :: Int
@@ -271,13 +271,13 @@ firstFretLabel fretNo =
   in
     text theFont xpos ypos (fillColor black) displayNumber
 
--- | display the enire choords hape described by the fingering
-displayChord :: Fingering -> DiagramParameters -> Drawing
-displayChord chord params =
-  title params.name <>
+-- | display the enire chordshape described by the fingering
+displayChord :: ChordShape -> Drawing
+displayChord chord =
+  title chord.name <>
         nut <>
         frets <>
         strings <>
-        barre params.barre <>
-        (fingering chord params.barre) <>
-        firstFretLabel params.firstFretOffset
+        barre chord.barre <>
+        (fingering chord.fingering chord.barre) <>
+        firstFretLabel chord.firstFretOffset
