@@ -25,7 +25,7 @@ import Piano.Types (ChordShape, Fingering, unfingered)
 import Piano.Audio (playChord)
 import Common.Types (ExportFormat(..), CanvasPosition, Percentage)
 import Common.Export (exportAs, scaleCanvas, toMimeType)
-import Common.Utils (contains)
+import Common.Utils (contains, safeName)
 import Audio.SoundFont (Instrument, loadRemoteSoundFonts)
 import Data.Midi.Instrument (InstrumentName(AcousticGrandPiano))
 
@@ -35,7 +35,7 @@ type Slot = H.Slot Query Void
 -- import Debug.Trace (spy)
 
 type State =
-  { 
+  {
     mGraphicsContext :: Maybe Context2D
   , mCanvas :: Maybe CanvasElement
   , canvasPosition :: CanvasPosition
@@ -252,7 +252,7 @@ component =
         originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
-        fileName = state.chordShape.name <> "_piano"
+        fileName = (safeName state.chordShape.name) <> "_piano"
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
       _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit

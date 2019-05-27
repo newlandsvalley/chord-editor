@@ -13,6 +13,7 @@ import Graphics.Canvas (Context2D, CanvasElement, clearRect, getCanvasElementByI
 import Graphics.Drawing (render) as Drawing
 import Common.Export (exportAs, scaleCanvas, toMimeType)
 import Common.Types (CanvasPosition, ExportFormat(..), Percentage)
+import Common.Utils (safeName)
 import Bass.Graphics (canvasHeight, canvasWidth, displayChord, fingeredString, titleDepth)
 import Bass.Audio (playChord)
 import Halogen as H
@@ -277,7 +278,7 @@ component =
         originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
-        fileName = state.chordShape.name <> "_bass"
+        fileName = (safeName state.chordShape.name) <> "_bass"
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
       _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
