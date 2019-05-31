@@ -37,6 +37,10 @@ data MouseAction =
   | OneFret FingeredString
   | NoFret
 
+-- | the number of frets we display
+displayedFretCount :: Int
+displayedFretCount = 6  
+
 -- | an open string
 open :: FingerPosition
 open = 0

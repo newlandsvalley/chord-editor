@@ -12,10 +12,14 @@
     "purescript-soundfonts": "^3.0.1",
     "purescript-debug": "^4.0.0",
     "purescript-halogen": "https://github.com/slamdata/purescript-halogen.git#5.0.0-rc.1",
+    "purescript-simple-json": "^5.1.0",
+    "purescript-validation": "^4.2.0",
     "purescript-routing": "^8.0.0",
-    "purescript-routing-duplex": "^0.2.0"
+    "purescript-routing-duplex": "^0.2.0",
+    "purescript-halogen-components": "https://github.com/newlandsvalley/purescript-halogen-components.git#halogen5"
   },
   "devDependencies": {
-    "purescript-psci-support": "^4.0.0"
+    "purescript-psci-support": "^4.0.0",
+    "purescript-test-unit": "^14.0.0"
   }
 }

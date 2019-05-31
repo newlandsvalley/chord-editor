@@ -2,7 +2,9 @@ module Bass.Types where
 
 
 import Prelude (class Eq, (==))
+import Bass.FingerStatus (FingerStatus(..))
 
+{-}
 -- | a finger on a bass guitar pattern can be primary (black circle) or
 -- | secondary (gray square) to indicate its importance
 data FingerStatus =
@@ -10,6 +12,7 @@ data FingerStatus =
   | Secondary
 
 derive instance eqFingerStatus :: Eq FingerStatus
+-}
 
 -- | a fingered fret position on a string
 -- | n == 0 : Open string is sounded
@@ -40,6 +43,10 @@ type ChordShape =
   , firstFretOffset :: Int     -- which fret on the guitar does fret 1 represent
   , fingering :: Fingering     -- the fretboard fingering
   }
+
+-- | the number of frets we display
+displayedFretCount :: Int
+displayedFretCount = 5
 
 -- | an open string
 open :: FingerPosition

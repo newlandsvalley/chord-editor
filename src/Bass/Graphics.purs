@@ -16,7 +16,8 @@ import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
 import Bass.Types (ChordShape, Fingering, FingeredString, FingerPosition,
-           FingerStatus(..), FretNumber, StringPositions, open)
+           FretNumber, StringPositions, open, displayedFretCount)
+import Bass.FingerStatus (FingerStatus(..))
 import Common.Types (MouseCoordinates)
 
 -- | a private manufactured position representing a silent (unplayed) string
@@ -67,10 +68,6 @@ fretWidth :: Number
 fretWidth =
   2.0
 
-fretCount :: Int
-fretCount =
-  5
-
 stringCount :: Int
 stringCount =
   4
@@ -81,7 +78,7 @@ stringSeparation =
 
 stringLength :: Number
 stringLength =
-  (toNumber fretCount) * fretDepth
+  (toNumber displayedFretCount) * fretDepth
 
 stringWidth :: Number
 stringWidth =
@@ -106,7 +103,7 @@ fret n =
 frets :: Drawing
 frets =
   let
-    fretNums = range 1 fretCount
+    fretNums = range 1 displayedFretCount
     f :: Drawing -> Int -> Drawing
     f acc n = acc <> (fret n)
   in
@@ -179,7 +176,7 @@ fingers stringNum stringPositions =
 finger :: Int -> FingerPosition -> Drawing
 finger stringNum fingerPosition  =
   if
-    (fingerPosition.fret > fretCount) ||
+    (fingerPosition.fret > displayedFretCount) ||
     (stringNum < 0) || (stringNum >= stringCount)
   then
     mempty
@@ -241,7 +238,7 @@ fingeredString coords  =
         (floor $ (coords.y - (nutDepth + nutyOffset)) / fretDepth) + 1
     in
       { stringNumber : min stringNumber (stringCount - 1)
-      , fretNumber  : min fretNumber fretCount
+      , fretNumber  : min fretNumber displayedFretCount
       }
 
 -- | display the chord diagram title, but constrain it to live within

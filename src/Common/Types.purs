@@ -1,5 +1,11 @@
 module Common.Types where
 
+import Data.List.Types (NonEmptyList)
+import Data.Validation.Semigroup
+
+-- | a validated Chord
+type Validated a = V (NonEmptyList String) a  
+
 -- | we only export to PNG and JPG at the moment
 data ExportFormat =
     PNG

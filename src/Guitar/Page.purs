@@ -8,17 +8,18 @@ import Data.Array (index, length, mapWithIndex, updateAt)
 import Data.Int (toNumber, fromString)
 import Data.Maybe (Maybe(..), fromJust, fromMaybe, isNothing)
 import Data.Tuple (Tuple(..))
-import Data.Foldable (all)
+import Data.Foldable (all, foldl)
 import Effect (Effect)
 import Effect.Aff.Class (class MonadAff)
 import Graphics.Canvas (Context2D, CanvasElement, clearRect, getCanvasElementById, getContext2D)
 import Graphics.Drawing (render) as Drawing
 import Common.Export (exportAs, scaleCanvas, toMimeType)
-import Common.Utils (safeName)
+import Common.Utils (safeName, jsonFileInputCtx)
 import Common.Types (ExportFormat(..), CanvasPosition, Percentage)
 import Guitar.Graphics (canvasHeight, canvasWidth, displayChord, fingeredString,
           titleDepth)
 import Guitar.Audio (playChord)
+import Guitar.Validation (validateJson)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
@@ -31,6 +32,11 @@ import Web.HTML.HTMLElement (offsetTop, offsetLeft)
 import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 import Audio.SoundFont (Instrument, loadRemoteSoundFonts)
 import Data.Midi.Instrument (InstrumentName(AcousticGuitarSteel))
+import Serialization.Json (writeGuitar)
+import JS.FileIO (saveTextFile)
+import Halogen.FileInputComponent as FIC
+import Data.Symbol (SProxy(..))
+import Data.Validation.Semigroup (unV)
 
 type Slot = H.Slot Query Void
 
@@ -46,6 +52,7 @@ type State =
   , chordShape :: ChordShape
   , exportScale :: Percentage
   , instruments :: Array Instrument
+  , errorText :: String
   }
 
 data Action =
@@ -57,6 +64,8 @@ data Action =
   | GetFirstFretNumber String
   | GetImageScale Percentage
   | Export ExportFormat
+  | Load FIC.Message
+  | Save
   | PlayChord
 
 data Query a =
@@ -64,6 +73,11 @@ data Query a =
   | LoadInstruments a
   | EditFingering a
   | DisplayFingering a
+
+type ChildSlots =
+  ( loadfile :: FIC.Slot Unit )
+
+_loadfile = SProxy :: SProxy "loadfile"
 
 component :: ∀ i o m. MonadAff m => H.Component HH.HTML Query i o m
 component =
@@ -97,9 +111,10 @@ component =
     , chordShape : openStringChordShape
     , exportScale : 100
     , instruments : []
+    , errorText : ""
     }
 
-  render :: State -> H.ComponentHTML Action () m
+  render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
     HH.div_
       [ HH.h1
@@ -122,10 +137,15 @@ component =
         [ renderClearFingeringButton state
         , renderExportPNGButton state
         ]
+      , HH.div_
+        [ renderLoadButton state
+        , renderSaveButton state
+        ]
       , renderPlayButton state
+      , HH.text state.errorText
       ]
 
-  renderClearFingeringButton :: State -> H.ComponentHTML Action () m
+  renderClearFingeringButton :: State -> H.ComponentHTML Action ChildSlots m
   renderClearFingeringButton state =
     HH.button
       [ HE.onClick \_ -> Just ClearFingering
@@ -134,7 +154,21 @@ component =
       ]
       [ HH.text "clear fingering" ]
 
-  renderExportPNGButton :: State -> H.ComponentHTML Action () m
+
+  renderLoadButton :: State -> H.ComponentHTML Action ChildSlots m
+  renderLoadButton state =
+    HH.slot _loadfile unit (FIC.component jsonFileInputCtx) unit (Just <<< Load)
+
+  renderSaveButton :: State -> H.ComponentHTML Action ChildSlots m
+  renderSaveButton state =
+    HH.button
+      [ HE.onClick \_ -> Just Save
+      , HP.class_ $ ClassName "hoverable"
+      , HP.enabled true
+      ]
+      [ HH.text "save" ]
+
+  renderExportPNGButton :: State -> H.ComponentHTML Action ChildSlots m
   renderExportPNGButton state =
     HH.button
       [ HE.onClick \_ -> Just (Export PNG)
@@ -143,7 +177,7 @@ component =
       ]
       [ HH.text "download PNG" ]
 
-  renderChordNameInput :: State -> H.ComponentHTML Action () m
+  renderChordNameInput :: State -> H.ComponentHTML Action ChildSlots m
   renderChordNameInput state =
     HH.div
       [ HP.id_ "chord-name-div" ]
@@ -159,7 +193,7 @@ component =
           ]
       ]
 
-  renderFirstFretNoInput :: State -> H.ComponentHTML Action () m
+  renderFirstFretNoInput :: State -> H.ComponentHTML Action ChildSlots m
   renderFirstFretNoInput state =
     HH.div
       [ HP.id_ "fret-number-div" ]
@@ -177,7 +211,7 @@ component =
           ]
       ]
 
-  renderImageScaleSlider :: State -> H.ComponentHTML Action () m
+  renderImageScaleSlider :: State -> H.ComponentHTML Action ChildSlots m
   renderImageScaleSlider state =
     let
       toScale :: String -> Percentage
@@ -201,7 +235,7 @@ component =
             ]
         ]
 
-  renderPlayButton :: State -> H.ComponentHTML Action () m
+  renderPlayButton :: State -> H.ComponentHTML Action ChildSlots m
   renderPlayButton state =
     let
       enabled =
@@ -238,7 +272,7 @@ component =
      "-" <>
      show fs.fretNumber)
 
-  handleAction ∷ Action -> H.HalogenM State Action () o m Unit
+  handleAction ∷ Action -> H.HalogenM State Action ChildSlots o m Unit
   handleAction = case _ of
     Init -> do
       state <- H.get
@@ -264,7 +298,7 @@ component =
         then do
           let
             fstring = fingeredString {x,y}
-          _ <- H.modify (\st -> st { mouseDownFinger = Just fstring })
+          _ <- H.modify (\st -> st { mouseDownFinger = Just fstring, errorText = "" })
           pure unit
         else do
           _ <- H.modify (\st -> st { mouseDownFinger = Nothing })
@@ -278,7 +312,7 @@ component =
         then do
           let
             fstring = fingeredString {x,y}
-          _ <- H.modify (\st -> st { mouseUpFinger = Just fstring })
+          _ <- H.modify (\st -> st { mouseUpFinger = Just fstring, errorText = "" })
           _ <- handleQuery (EditFingering unit)
           pure unit
         else do
@@ -288,7 +322,7 @@ component =
       state <- H.get
       let
         newShape = state.chordShape { name = name }
-        newState = state { chordShape = newShape }
+        newState = state { chordShape = newShape, errorText = "" }
       _ <- H.put newState
       _ <- handleQuery (DisplayFingering unit)
       pure unit
@@ -297,12 +331,12 @@ component =
       let
         fret = fromMaybe 0 $ fromString numStr
         newShape = state.chordShape { firstFretOffset = fret }
-        newState = state { chordShape = newShape }
+        newState = state { chordShape = newShape, errorText = "" }
       _ <- H.put newState
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     ClearFingering -> do
-      _ <- H.modify (\st -> st { chordShape = openStringChordShape })
+      _ <- H.modify (\st -> st { chordShape = openStringChordShape, errorText = "" })
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     GetImageScale scale -> do
@@ -318,6 +352,24 @@ component =
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
       _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
+    Load (FIC.FileLoaded filespec) -> do
+      state <- H.get
+      let
+        validated = validateJson filespec.contents
+        newState = unV
+                    (\errs -> state { errorText = foldl (<>) "" errs})
+                    (\chordShape -> state {chordShape = chordShape, errorText = ""} )
+                    validated
+      _ <- H.put newState
+      _ <- handleQuery (DisplayFingering unit)
+      pure unit
+    Save -> do
+      state <- H.get
+      let
+        name = (safeName state.chordShape.name) <> "_guitar" <> ".json"
+        contents = writeGuitar state.chordShape
+      _ <- H.liftEffect $ saveTextFile { name, contents }
+      pure unit
     PlayChord -> do
       state <- H.get
       H.liftEffect $ playChord
@@ -326,7 +378,7 @@ component =
         state.chordShape.barre
         state.instruments
 
-  handleQuery :: ∀ a. Query a -> H.HalogenM State Action () o m (Maybe a)
+  handleQuery :: ∀ a. Query a -> H.HalogenM State Action ChildSlots o m (Maybe a)
   handleQuery = case _ of
     -- get the coordinates of the upper left hand corner of the canvas we've
     -- just built.  We need this to find accurate mouse click references relative
