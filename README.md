@@ -22,7 +22,11 @@ Try it out [here](http://www.tradtunedb.org.uk:8603/).
 To build
 --------
 
-    bower install
     npm run build
 
 and then navigate in your browser to /dist.  The browser must support web-audio if you wish to hear the chord.
+
+To test
+-------
+
+    npm run test

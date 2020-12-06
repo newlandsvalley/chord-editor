@@ -1,17 +1,14 @@
 {
   "private": true,
   "scripts": {
-    "build": "pulp build --to dist/chordeditor.js",
-    "optimise": "npm run uglify --s dist/chordeditor.js --output dist/chordeditormin.js --compress --mangle"
+    "build": "spago bundle-app --to dist/chordeditor.js",
+    "test": "spago -x ./test.dhall test",
+    "pulp build": "pulp build --to dist/chordeditor.js"
   },
   "devDependencies": {
-    "pulp": "^14.0.0",
+    "pulp": "^15.0.0",
     "purescript": "^0.13.8",
     "purescript-psa": "^0.5.1",
     "webpack": "^3.6.0"
-  },
-  "dependencies": {
-    "uglify": "^0.1.5",
-    "uglify-js": "^3.5.11"
   }
 }

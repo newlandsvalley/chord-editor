@@ -4,6 +4,7 @@
 /output/
 /generated-docs/
 /.psc-package/
+/.spago/
 /deprecated/
 /dist/chordeditor.js
 /dist/chordeditormin.js
