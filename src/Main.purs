@@ -8,7 +8,6 @@ import Effect.Aff (Aff, launchAff_)
 import Effect.Class (liftEffect)
 import Halogen as H
 import Halogen.Aff as HA
-import Halogen.HTML as HH
 import Halogen.VDom.Driver (runUI)
 import Navigation.Route (routeCodec)
 import Navigation.Router as Router
@@ -23,7 +22,7 @@ main = HA.runHalogenAff do
   -- Halogen only deals in Aff at the top level. We have to hoist our monad
   -- (which only adds Navigation to Aff) into Aff so Halogen can deal with it
   let
-    rootComponent :: H.Component HH.HTML Router.Query Unit Void Aff
+    rootComponent :: H.Component Router.Query Unit Void Aff
     rootComponent = H.hoist toAff Router.component
 
   halogenIO <- runUI rootComponent unit body
@@ -42,4 +41,5 @@ main = HA.runHalogenAff do
   -- https://github.com/natefaubion/purescript-routing-duplex/blob/v0.2.0/README.md
   void $ liftEffect $ matchesWith (parse routeCodec) \old new ->
     when (old /= Just new) do
-      launchAff_ $ halogenIO.query $ H.tell $ Router.Navigate new
+      -- launchAff_ $ halogenIO.query $ H.tell $ Router.Navigate new
+      launchAff_ $ halogenIO.query $ H.mkTell $ Router.Navigate new

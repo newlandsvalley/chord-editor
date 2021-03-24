@@ -104,34 +104,31 @@ in  upstream
       }
 -------------------------------
 -}
-
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.13.8-20201204/packages.dhall sha256:89f184cea1ca40630ea34fb68972589b8eedf4809275686aef85f86abaa2145f
+      https://github.com/purescript/package-sets/releases/download/psc-0.14.0-20210324/packages.dhall sha256:b4564d575da6aed1c042ca7936da97c8b7a29473b63f4515f09bb95fae8dddab
 
 in  upstream
-   with halogen-components =
-     { dependencies =
-         [ "console"
-         , "css"
-         , "effect"
-         , "js-fileio"
-         , "halogen"
-         , "halogen-css"
-         , "soundfonts"
-         ]
-     , repo =
-         "https://github.com/newlandsvalley/purescript-halogen-components.git"
-     , version =
-         "master"
-     }
-   with js-fileio =
-     { dependencies =
-         [ "aff"
-         , "effect"
-         , "prelude"
-         ]
-     , repo =
-         "https://github.com/newlandsvalley/purescript-js-fileio.git"
-     , version =
-         "2.0.3"
-     }
+  with halogen-components =
+    { dependencies =
+      [ "console"
+      , "css"
+      , "effect"
+      , "js-fileio"
+      , "halogen"
+      , "halogen-css"
+      , "soundfonts"
+      ]
+    , repo =
+        "https://github.com/newlandsvalley/purescript-halogen-components.git"
+    , version = "ps014"
+    }
+  with halogen-css =
+      { dependencies =
+          [ "css"
+          , "halogen"
+          ]
+      , repo =
+          "https://github.com/newlandsvalley/purescript-halogen-css.git"
+      , version =
+          "master"
+      }

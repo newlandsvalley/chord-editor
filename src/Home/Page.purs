@@ -14,7 +14,7 @@ type State =
 data Action =
   Init
 
-component :: ∀ i o q m. MonadAff m => H.Component HH.HTML q i o m
+component :: ∀ i o q m. MonadAff m => H.Component q i o m
 component =
   H.mkComponent
     { initialState

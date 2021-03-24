@@ -33,8 +33,8 @@ import Data.Midi.Instrument (InstrumentName(AcousticGrandPiano))
 import Serialization.Json (writePiano)
 import JS.FileIO (saveTextFile)
 import Halogen.FileInputComponent as FIC
-import Data.Symbol (SProxy(..))
-import Data.Validation.Semigroup (unV)
+import Data.Validation.Semigroup (validation)
+import Type.Proxy (Proxy(..))
 
 
 type Slot = H.Slot Query Void
@@ -71,9 +71,10 @@ data Query a =
 type ChildSlots =
   ( loadfile :: FIC.Slot Unit )
 
-_loadfile = SProxy :: SProxy "loadfile"
+-- _loadfile = SProxy :: SProxy "loadfile"
+_loadfile = Proxy :: Proxy "loadfile"
 
-component :: ∀ i o m. MonadAff m => H.Component HH.HTML Query i o m
+component :: ∀ i o m. MonadAff m => H.Component Query i o m
 component =
   H.mkComponent
     { initialState
@@ -111,7 +112,7 @@ component =
          [HP.class_ (H.ClassName "center") ]
          [HH.text "Piano Chord Editor" ]
       , HH.canvas
-         [ HP.id_ "canvas"
+         [ HP.id "canvas"
          , HE.onClick canvasClickHandler
          , HP.height canvasHeight
          , HP.width  canvasWidth
@@ -136,7 +137,7 @@ component =
   renderClearFingeringButton :: State -> H.ComponentHTML Action ChildSlots m
   renderClearFingeringButton state =
     HH.button
-      [ HE.onClick \_ -> Just ClearFingering
+      [ HE.onClick \_ -> ClearFingering
       , HP.class_ $ ClassName "hoverable"
       , HP.enabled true
       ]
@@ -145,7 +146,7 @@ component =
   renderExportPNGButton :: State -> H.ComponentHTML Action ChildSlots m
   renderExportPNGButton state =
     HH.button
-      [ HE.onClick \_ -> Just (Export PNG)
+      [ HE.onClick \_ -> Export PNG
       , HP.class_ $ ClassName "hoverable"
       , HP.enabled true
       ]
@@ -153,12 +154,12 @@ component =
 
   renderLoadButton :: State -> H.ComponentHTML Action ChildSlots m
   renderLoadButton state =
-    HH.slot _loadfile unit (FIC.component jsonFileInputCtx) unit (Just <<< Load)
+    HH.slot _loadfile unit (FIC.component jsonFileInputCtx) unit Load
 
   renderSaveButton :: State -> H.ComponentHTML Action ChildSlots m
   renderSaveButton state =
     HH.button
-      [ HE.onClick \_ -> Just Save
+      [ HE.onClick \_ -> Save
       , HP.class_ $ ClassName "hoverable"
       , HP.enabled true
       ]
@@ -167,15 +168,15 @@ component =
   renderChordNameInput :: State -> H.ComponentHTML Action ChildSlots m
   renderChordNameInput state =
     HH.div
-      [ HP.id_ "chord-name-div" ]
+      [ HP.id "chord-name-div" ]
       [ HH.label
-        [ HP.id_ "chord-name-label" ]
+        [ HP.id "chord-name-label" ]
         [ HH.text "chord name:" ]
       , HH.input
-          [ HE.onValueInput  (Just <<< GetChordName)
+          [ HE.onValueInput GetChordName
           , HP.value state.chordShape.name
           , HP.type_ HP.InputText
-          , HP.id_  "chord-name-edit"
+          , HP.id "chord-name-edit"
           , HP.class_ $ ClassName "text-input"
           ]
       ]
@@ -193,9 +194,9 @@ component =
            [ HP.class_ (H.ClassName "labelAlignment") ]
            [ HH.text "scale download:" ]
         , HH.input
-            [ HE.onValueInput  (Just <<< GetImageScale <<< toScale )
+            [ HE.onValueInput  (GetImageScale <<< toScale )
             , HP.type_ HP.InputRange
-            , HP.id_ "scale-slider"
+            , HP.id "scale-slider"
             , HP.class_ (H.ClassName "scaling-slider")
             , HP.min 25.0
             , HP.max 1000.0
@@ -215,7 +216,7 @@ component =
     in
       HH.div_
         [ HH.button
-          [ HE.onClick \_ -> Just PlayChord
+          [ HE.onClick \_ -> PlayChord
           , HP.class_ $ ClassName className
           , HP.enabled enabled
           ]
@@ -294,7 +295,7 @@ component =
       state <- H.get
       let
         validated = validateJson filespec.contents
-        newState = unV
+        newState = validation
                     (\errs -> state { errorText = foldl (<>) "" errs})
                     (\chordShape -> state {chordShape = chordShape, errorText = ""} )
                     validated
@@ -346,9 +347,9 @@ component =
                   $ displayChord state.chordShape
       pure (Just next)
 
-  canvasClickHandler :: MouseEvent -> Maybe Action
+  canvasClickHandler :: MouseEvent -> Action
   canvasClickHandler me =
-    Just $ EditFingering (clientX me) (clientY me)
+    EditFingering (clientX me) (clientY me)
 
   clearCanvas :: State -> Effect Unit
   clearCanvas state = do

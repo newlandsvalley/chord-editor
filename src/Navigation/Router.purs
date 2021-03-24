@@ -7,7 +7,6 @@ import Data.Const (Const)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Either (hush)
 import Effect.Aff.Class (class MonadAff)
-import Data.Symbol (SProxy(..))
 import Halogen as H
 import Halogen.HTML as HH
 import Navigation.Route (Route(..), routeCodec)
@@ -18,6 +17,7 @@ import Guitar.Page as Guitar
 import Bass.Page as Bass
 import Piano.Page as Piano
 import Home.Page as Home
+import Type.Proxy (Proxy(..))
 
 -- | When a component has no queries or messages, it has no public interface and can be
 -- | considered an "opaque" component. The only way for a parent to interact with the component
@@ -40,7 +40,7 @@ type ChildSlots =
   , piano :: Piano.Slot Unit
   )
 
-component :: ∀ m. MonadAff m => Navigate m => H.Component HH.HTML Query Unit Void m
+component :: ∀ m. MonadAff m => Navigate m => H.Component Query Unit Void m
 component =
   H.mkComponent
     { initialState: \_ -> { route: Nothing }
@@ -74,13 +74,13 @@ component =
   render { route } = case route of
     Just r -> case r of
       Home ->
-        HH.slot (SProxy :: _ "home") unit Home.component unit absurd
+        HH.slot (Proxy :: _ "home") unit Home.component unit absurd
       Guitar ->
-        HH.slot (SProxy :: _ "guitar") unit Guitar.component unit absurd
+        HH.slot (Proxy :: _ "guitar") unit Guitar.component unit absurd
       Piano ->
-        HH.slot (SProxy :: _ "piano") unit Piano.component unit absurd
+        HH.slot (Proxy :: _ "piano") unit Piano.component unit absurd
       Bass ->
-        HH.slot (SProxy :: _ "bass") unit Bass.component unit absurd
+        HH.slot (Proxy :: _ "bass") unit Bass.component unit absurd
 
     Nothing ->
       HH.div_ [ HH.text "Oh no! That page wasn't found." ]
