@@ -90,7 +90,7 @@ validateFingerPositions fingering =
 checkHiddenByBarre :: ChordShape -> Validated ChordShape
 checkHiddenByBarre chordShape =
   case chordShape.barre of
-    Just barre ->
+    Just _ ->  -- barre
         let
           f :: Int -> FingerPosition -> Int
           f stringNumber fretNumber =

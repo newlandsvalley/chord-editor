@@ -31,7 +31,7 @@ component =
     {}
 
   render :: State -> H.ComponentHTML Action () m
-  render state =
+  render _ =
     HH.div_
       [ HH.h1
          [HP.class_ (H.ClassName "center") ]

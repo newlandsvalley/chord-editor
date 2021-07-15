@@ -1,7 +1,7 @@
 module Bass.Types where
 
 
-import Prelude (class Eq, (==))
+import Prelude ((==))
 import Bass.FingerStatus (FingerStatus(..))
 
 {-}

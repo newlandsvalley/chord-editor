@@ -136,19 +136,19 @@ component =
         , HH.text (show $ toNumber state.exportScale / 100.0)
         ]
       , HH.div_
-        [ renderClearFingeringButton state
-        , renderExportPNGButton state
+        [ renderClearFingeringButton
+        , renderExportPNGButton
         ]
       , HH.div_
-        [ renderLoadButton state
-        , renderSaveButton state
+        [ renderLoadButton
+        , renderSaveButton
         ]
       , renderPlayButton state
       , HH.text state.errorText
       ]
 
-  renderClearFingeringButton :: State -> H.ComponentHTML Action ChildSlots m
-  renderClearFingeringButton state =
+  renderClearFingeringButton :: H.ComponentHTML Action ChildSlots m
+  renderClearFingeringButton =
     HH.button
       [ HE.onClick \_ -> ClearFingering
       , HP.class_ $ ClassName "hoverable"
@@ -157,12 +157,12 @@ component =
       [ HH.text "clear fingering" ]
 
 
-  renderLoadButton :: State -> H.ComponentHTML Action ChildSlots m
-  renderLoadButton state =
+  renderLoadButton :: H.ComponentHTML Action ChildSlots m
+  renderLoadButton =
     HH.slot _loadfile unit (FIC.component jsonFileInputCtx) unit Load
 
-  renderSaveButton :: State -> H.ComponentHTML Action ChildSlots m
-  renderSaveButton state =
+  renderSaveButton :: H.ComponentHTML Action ChildSlots m
+  renderSaveButton =
     HH.button
       [ HE.onClick \_ -> Save
       , HP.class_ $ ClassName "hoverable"
@@ -170,8 +170,8 @@ component =
       ]
       [ HH.text "save" ]
 
-  renderExportPNGButton :: State -> H.ComponentHTML Action ChildSlots m
-  renderExportPNGButton state =
+  renderExportPNGButton :: H.ComponentHTML Action ChildSlots m
+  renderExportPNGButton =
     HH.button
       [ HE.onClick \_ -> Export PNG
       , HP.class_ $ ClassName "hoverable"
@@ -266,18 +266,18 @@ component =
         maybe "nothing" showFinger state.mouseUpFinger
     in
       HH.text ("mouse down: " <> mouseDown <> " mouse up: " <> mouseUp)
-  -}
 
   showFinger :: FingeredString -> String
   showFinger fs =
     (show fs.stringNumber <>
      "-" <>
      show fs.fretNumber)
+  -}
 
   handleAction ∷ Action -> H.HalogenM State Action ChildSlots o m Unit
   handleAction = case _ of
     Init -> do
-      state <- H.get
+      -- state <- H.get
       mCanvas <- H.liftEffect $ getCanvasElementById "canvas"
       let
         canvas = unsafePartial (fromJust mCanvas)
@@ -526,7 +526,7 @@ component =
   removeHiddenFingering :: Barre -> Fingering -> Fingering
   removeHiddenFingering mBarre fingering =
     case mBarre of
-      Just barre ->
+      Just _ ->  -- Just barre
         let
           f :: Int -> FingerPosition -> FingerPosition
           f stringNumber fretNumber =

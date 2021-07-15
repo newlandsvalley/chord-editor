@@ -117,7 +117,7 @@ aString n =
   in
     filled
       (fillColor black)
-      (rectangle xOffset (nutDepth + nutyOffset) stringWidth stringLength)
+      (rectangle xOffset yOffset stringWidth stringLength)
 
 -- | draw the strings
 strings :: Drawing
