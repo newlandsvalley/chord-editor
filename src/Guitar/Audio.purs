@@ -6,7 +6,7 @@ module Guitar.Audio
 -- | play the guitar chord through Web Audio by means of generating
 -- | the MIDI notes
 
-import Prelude (Unit, ($), (<), (+), map, max, void)
+import Prelude (Unit, ($), (<), (<=), (+), map, max, void)
 import Effect (Effect)
 import Audio.SoundFont (Instrument, MidiNote, playNotes)
 import Data.Array (index, mapWithIndex)
@@ -43,7 +43,7 @@ possiblyBarredFret :: Int -> FingerPosition -> Barre -> FingerPosition
 possiblyBarredFret stringNumber fingerPosition mBarre =
   case mBarre of
     Just fingeredString ->
-      if (fingeredString.stringNumber < stringNumber) then
+      if (fingeredString.stringNumber <= stringNumber) then
         max fingeredString.fretNumber fingerPosition
       else
         fingerPosition
