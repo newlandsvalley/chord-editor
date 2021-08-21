@@ -36,7 +36,7 @@ cellSize =
 
 neckWidth :: Number
 neckWidth =
-  stringSeparation * toNumber (stringCount -1)
+  stringSeparation * toNumber (stringCount - 1)
 
 nutDepth :: Number
 nutDepth =
@@ -46,11 +46,11 @@ titleDepth :: Number
 titleDepth =
   35.0
 
-nutyOffset:: Number
+nutyOffset :: Number
 nutyOffset =
   70.0
 
-nutxOffset:: Number
+nutxOffset :: Number
 nutxOffset =
   cellSize * 1.5
 
@@ -93,7 +93,7 @@ nut =
 fret :: Int -> Drawing
 fret n =
   let
-    fretyOffset =  toNumber n  * fretDepth
+    fretyOffset = toNumber n * fretDepth
   in
     filled
       (fillColor black)
@@ -112,7 +112,7 @@ frets =
 aString :: Int -> Drawing
 aString n =
   let
-    xOffset =  nutxOffset + toNumber n  * stringSeparation
+    xOffset = nutxOffset + toNumber n * stringSeparation
     yOffset = nutDepth + nutyOffset
   in
     filled
@@ -123,7 +123,7 @@ aString n =
 strings :: Drawing
 strings =
   let
-    stringNums = range 0 (stringCount -1)
+    stringNums = range 0 (stringCount - 1)
     f :: Drawing -> Int -> Drawing
     f acc n = acc <> (aString n)
   in
@@ -141,10 +141,10 @@ openString stringNum =
     filled
       (fillColor black)
       (circle xpos ypos outerRadius)
-    <>
-      filled
-        (fillColor white)
-        (circle xpos ypos innerRadius)
+      <>
+        filled
+          (fillColor white)
+          (circle xpos ypos innerRadius)
 
 -- | a cross above the nut indicates a string which should not be played
 silentString :: Int -> Drawing
@@ -152,25 +152,25 @@ silentString stringNum =
   let
     barLength = 0.25 * stringSeparation
     theFont = font sansSerif 26 bold
-    xpos = nutxOffset +
-           (toNumber stringNum * stringSeparation)
-           - barLength
+    xpos = nutxOffset
+      + (toNumber stringNum * stringSeparation)
+      - barLength
     ypos = nutyOffset - (nutDepth * 0.5)
   in
     text theFont xpos ypos (fillColor black) "x"
 
 -- | draw a single finger on a string
 finger :: Barre -> Int -> Int -> Drawing
-finger  mBarre stringNum fretNum  =
+finger mBarre stringNum fretNum =
   let
     radius = 0.7 * fretDepth / 2.0
     xpos = nutxOffset + (toNumber stringNum * stringSeparation)
     ypos = nutDepth + nutyOffset + (toNumber fretNum * fretDepth) - (radius + 2.0)
   in
     if
-      (fretNum > displayedFretCount) ||
-      (stringNum < 0) || (stringNum >= stringCount)
-    then
+      (fretNum > displayedFretCount)
+        || (stringNum < 0)
+        || (stringNum >= stringCount) then
       mempty
     -- don't display the 0 or X against a barre'd string
     else if (stringIsBarred mBarre stringNum) && (fretNum <= open) then
@@ -184,7 +184,6 @@ finger  mBarre stringNum fretNum  =
         (fillColor black)
         (circle xpos ypos radius)
 
-
 -- | draw the complete fingering
 fingering :: Array Int -> Barre -> Drawing
 fingering fingerSpec mBarre =
@@ -197,7 +196,7 @@ barre mFingeredString =
     Just fs ->
       let
         xstart = nutxOffset + (toNumber fs.stringNumber * stringSeparation) - (stringSeparation / 4.0)
-        xlen = toNumber (stringCount - fs.stringNumber- 1) * stringSeparation + (stringSeparation / 2.0)
+        xlen = toNumber (stringCount - fs.stringNumber - 1) * stringSeparation + (stringSeparation / 2.0)
         ystart = nutDepth + nutyOffset + (toNumber fs.fretNumber * fretDepth) - (fretDepth / 1.75)
         ylen = cellSize / 2.5
       in
@@ -231,10 +230,10 @@ fingeredString coords =
         0
       else
         (floor $ (coords.y - (nutDepth + nutyOffset)) / fretDepth) + 1
-    in
-      { stringNumber : min stringNumber (stringCount - 1)
-      , fretNumber  : min fretNumber displayedFretCount
-      }
+  in
+    { stringNumber: min stringNumber (stringCount - 1)
+    , fretNumber: min fretNumber displayedFretCount
+    }
 
 -- | display the chord diagram title, but constrain it to live within
 -- | the width of the nut, roughly centered
@@ -262,24 +261,25 @@ title name =
 firstFretLabel :: Int -> Drawing
 firstFretLabel fretNo =
   if
-    (fretNo < 1  || fretNo >= 10) then
-      mempty
+    (fretNo < 1 || fretNo >= 10) then
+    mempty
   else
     let
       theFont = font sansSerif 20 light
       displayNumber = show fretNo
       xpos = nutxOffset * 0.6
       ypos = nutDepth + nutyOffset + (fretDepth * 0.6)
-  in
-    text theFont xpos ypos (fillColor black) displayNumber
+    in
+      text theFont xpos ypos (fillColor black) displayNumber
 
 -- | display the enire chordshape described by the fingering
 displayChord :: ChordShape -> Drawing
 displayChord chord =
-  title chord.name <>
-        nut <>
-        frets <>
-        strings <>
-        barre chord.barre <>
-        (fingering chord.fingering chord.barre) <>
-        firstFretLabel chord.firstFretOffset
+  title chord.name
+    <> nut
+    <> frets
+    <> strings
+    <> barre chord.barre
+    <> (fingering chord.fingering chord.barre)
+    <>
+      firstFretLabel chord.firstFretOffset

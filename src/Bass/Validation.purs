@@ -2,7 +2,7 @@ module Bass.Validation (validate, validateJson) where
 
 -- | Validate a Bass chord pattern when loaded from a JSOM file
 
-import Prelude (($), (>), (<), (||), (<>), (<$>),(<*>), (/=), const, map, join, negate, pure, show)
+import Prelude (($), (>), (<), (||), (<>), (<$>), (<*>), (/=), const, map, join, negate, pure, show)
 import Data.Array (filter, length)
 import Data.Either (either)
 import Data.Foldable (intercalate)
@@ -25,9 +25,9 @@ validateJson json =
 -- | validate a prospective bass guitar chord pattern
 validate :: ChordShape -> Validated ChordShape
 validate chordShape =
-  { name : chordShape.name, firstFretOffset:_, fingering :_}
-  <$> validateFirstFretOffset chordShape.firstFretOffset
-  <*> validateFingering chordShape.fingering
+  { name: chordShape.name, firstFretOffset: _, fingering: _ }
+    <$> validateFirstFretOffset chordShape.firstFretOffset
+    <*> validateFingering chordShape.fingering
 
 validateFirstFretOffset :: Int -> Validated Int
 validateFirstFretOffset offset =
@@ -36,14 +36,14 @@ validateFirstFretOffset offset =
   else
     pure offset
 
-validateFingering  :: Fingering -> Validated Fingering
+validateFingering :: Fingering -> Validated Fingering
 validateFingering fingering =
   if (length fingering /= 4) then
     invalid $ pure "Fingering for all 4 strings is required."
   else
     validateFingerPositions fingering
 
-validateFingerPositions  :: Fingering -> Validated Fingering
+validateFingerPositions :: Fingering -> Validated Fingering
 validateFingerPositions fingering =
   let
     fingerOutOfRange :: FingerPosition -> Boolean
@@ -53,11 +53,11 @@ validateFingerPositions fingering =
     case (filter fingerOutOfRange (join fingering)) of
       [] ->
         pure fingering
-      [f]  ->
+      [ f ] ->
         invalid $ pure $ "Finger position " <> show f.fret <> " is out of range."
       y ->
         let
           fingers =
-             intercalate ", " $ map (\fp -> show fp.fret) y
+            intercalate ", " $ map (\fp -> show fp.fret) y
         in
           invalid $ pure $ "Finger positions " <> fingers <> " are out of range."

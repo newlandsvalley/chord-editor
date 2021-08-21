@@ -16,7 +16,7 @@ type Fingering = Array FingerPosition
 -- | a fingered string
 type FingeredString =
   { stringNumber :: Int
-  , fretNumber  :: FingerPosition
+  , fretNumber :: FingerPosition
   }
 
 -- | a barré
@@ -25,21 +25,21 @@ type Barre =
 
 -- | The editable chord shape of the guitar
 type ChordShape =
-  { name :: String                 -- the chord name
-  , firstFretOffset :: Int         -- which fret on the guitar does fret 1 represent
-  , barre :: Barre                 -- a barré at this fret from this string to
-                                   -- the final string (5)
-  , fingering :: Fingering         -- the fingering
+  { name :: String -- the chord name
+  , firstFretOffset :: Int -- which fret on the guitar does fret 1 represent
+  , barre :: Barre -- a barré at this fret from this string to
+  -- the final string (5)
+  , fingering :: Fingering -- the fingering
   }
 
-data MouseAction =
-    Barre FingeredString
+data MouseAction
+  = Barre FingeredString
   | OneFret FingeredString
   | NoFret
 
 -- | the number of frets we display
 displayedFretCount :: Int
-displayedFretCount = 6  
+displayedFretCount = 6
 
 -- | an open string
 open :: FingerPosition
@@ -52,7 +52,7 @@ silent = -1
 -- | all the open strings
 openStrings :: Fingering
 openStrings =
-  [open,open,open,open,open,open]
+  [ open, open, open, open, open, open ]
 
 -- | and the chord that is therefore produced
 openStringsChordName :: String

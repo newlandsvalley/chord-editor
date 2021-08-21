@@ -26,17 +26,17 @@ validateJson json =
 -- | validate a prospective piano chord
 validate :: ChordShape -> Validated ChordShape
 validate chordShape =
-  { name : chordShape.name, fingering :_}
-  <$> validateFingering chordShape.fingering
+  { name: chordShape.name, fingering: _ }
+    <$> validateFingering chordShape.fingering
 
-validateFingering  :: Fingering -> Validated Fingering
+validateFingering :: Fingering -> Validated Fingering
 validateFingering fingering =
   if (length fingering > 10) then
     invalid $ pure "Too many fingers."
   else
     validateFingerPositions fingering
 
-validateFingerPositions  :: Fingering -> Validated Fingering
+validateFingerPositions :: Fingering -> Validated Fingering
 validateFingerPositions fingering =
   let
     fingerOutOfRange :: FingerPosition -> Boolean
@@ -46,7 +46,7 @@ validateFingerPositions fingering =
     case (filter fingerOutOfRange fingering) of
       [] ->
         pure fingering
-      [x]  ->
+      [ x ] ->
         invalid $ pure $ "Finger position " <> show x <> " is out of range."
       y ->
         let

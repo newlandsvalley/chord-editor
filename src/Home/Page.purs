@@ -34,29 +34,25 @@ component =
   render _ =
     HH.div_
       [ HH.h1
-         [HP.class_ (H.ClassName "center") ]
-         [HH.text "Chord Editor" ]
+          [ HP.class_ (H.ClassName "center") ]
+          [ HH.text "Chord Editor" ]
       , HH.ul
-         [HP.class_ (H.ClassName "menu") ]
-         [ HH.li_
-             [ HH.a
-                [HP.href "#/guitar" ]
-                [ HH.text "Guitar"  ]
-             ]
-         , HH.li_
-             [ HH.a
-                [HP.href "#/bass" ]
-                [ HH.text "Bass"  ]
-             ]
-         , HH.li_
-             [ HH.a
-                [HP.href "#/piano" ]
-                [ HH.text "Piano"  ]
-             ]
-         ]
+          [ HP.class_ (H.ClassName "menu") ]
+          [ HH.li_
+              [ HH.a
+                  [ HP.href "#/guitar" ]
+                  [ HH.text "Guitar" ]
+              ]
+          , HH.li_
+              [ HH.a
+                  [ HP.href "#/bass" ]
+                  [ HH.text "Bass" ]
+              ]
+          , HH.li_
+              [ HH.a
+                  [ HP.href "#/piano" ]
+                  [ HH.text "Piano" ]
+              ]
+          ]
       ]
 
-  handleAction ∷ Action → H.HalogenM State Action () o m Unit
-  handleAction = case _ of
-    Init -> do
-      pure unit

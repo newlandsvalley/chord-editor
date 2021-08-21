@@ -13,8 +13,13 @@ import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 import Web.HTML.HTMLElement (offsetTop, offsetLeft)
 import DOM.HTML.Indexed.StepValue (StepValue(..))
 import Web.DOM.ParentNode (QuerySelector(..))
-import Graphics.Canvas (Context2D, CanvasElement,
-         clearRect, getCanvasElementById, getContext2D)
+import Graphics.Canvas
+  ( Context2D
+  , CanvasElement
+  , clearRect
+  , getCanvasElementById
+  , getContext2D
+  )
 import Graphics.Drawing (render) as Drawing
 import Data.Maybe (Maybe(..), fromJust, fromMaybe, isJust)
 import Data.Array (cons, filter, length)
@@ -36,14 +41,12 @@ import Halogen.FileInputComponent as FIC
 import Data.Validation.Semigroup (validation)
 import Type.Proxy (Proxy(..))
 
-
 type Slot = H.Slot Query Void
 
 -- import Debug.Trace (spy)
 
 type State =
-  {
-    mGraphicsContext :: Maybe Context2D
+  { mGraphicsContext :: Maybe Context2D
   , mCanvas :: Maybe CanvasElement
   , canvasPosition :: CanvasPosition
   , chordShape :: ChordShape
@@ -52,8 +55,8 @@ type State =
   , errorText :: String
   }
 
-data Action =
-    Init
+data Action
+  = Init
   | EditFingering Int Int
   | ClearFingering
   | GetChordName String
@@ -63,13 +66,13 @@ data Action =
   | Save
   | PlayChord
 
-data Query a =
-    GetCanvasOffset a
+data Query a
+  = GetCanvasOffset a
   | LoadInstruments a
   | DisplayFingering a
 
 type ChildSlots =
-  ( loadfile :: FIC.Slot Unit )
+  (loadfile :: FIC.Slot Unit)
 
 -- _loadfile = SProxy :: SProxy "loadfile"
 _loadfile = Proxy :: Proxy "loadfile"
@@ -89,47 +92,47 @@ component =
 
   initialChordShape :: ChordShape
   initialChordShape =
-      { name : "silent"
-      , fingering : unfingered
-      }
+    { name: "silent"
+    , fingering: unfingered
+    }
 
   initialState :: i -> State
   initialState _ =
     { -- mAudioContext : Nothing
-      mGraphicsContext : Nothing
-    , mCanvas : Nothing
-    , canvasPosition : { left : 0.0, top : 0.0 }
-    , chordShape : initialChordShape
-    , exportScale : 100
-    , instruments : []
-    , errorText : ""
+      mGraphicsContext: Nothing
+    , mCanvas: Nothing
+    , canvasPosition: { left: 0.0, top: 0.0 }
+    , chordShape: initialChordShape
+    , exportScale: 100
+    , instruments: []
+    , errorText: ""
     }
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
     HH.div_
       [ HH.h1
-         [HP.class_ (H.ClassName "center") ]
-         [HH.text "Piano Chord Editor" ]
+          [ HP.class_ (H.ClassName "center") ]
+          [ HH.text "Piano Chord Editor" ]
       , HH.canvas
-         [ HP.id "canvas"
-         , HE.onClick canvasClickHandler
-         , HP.height canvasHeight
-         , HP.width  canvasWidth
-         ]
+          [ HP.id "canvas"
+          , HE.onClick canvasClickHandler
+          , HP.height canvasHeight
+          , HP.width canvasWidth
+          ]
       , renderChordNameInput state
       , HH.div_
-        [ renderImageScaleSlider state
-        , HH.text (show $ toNumber state.exportScale / 100.0)
-        ]
+          [ renderImageScaleSlider state
+          , HH.text (show $ toNumber state.exportScale / 100.0)
+          ]
       , HH.div_
-        [ renderClearFingeringButton
-        , renderExportPNGButton
-        ]
+          [ renderClearFingeringButton
+          , renderExportPNGButton
+          ]
       , HH.div_
-        [ renderLoadButton
-        , renderSaveButton
-        ]
+          [ renderLoadButton
+          , renderSaveButton
+          ]
       , renderPlayButton state
       , HH.text state.errorText
       ]
@@ -170,8 +173,8 @@ component =
     HH.div
       [ HP.id "chord-name-div" ]
       [ HH.label
-        [ HP.id "chord-name-label" ]
-        [ HH.text "chord name:" ]
+          [ HP.id "chord-name-label" ]
+          [ HH.text "chord name:" ]
       , HH.input
           [ HE.onValueInput GetChordName
           , HP.value state.chordShape.name
@@ -189,12 +192,12 @@ component =
         fromMaybe 100 $ fromString s
     in
       HH.div
-        [ HP.class_ (H.ClassName "leftPanelComponent")]
+        [ HP.class_ (H.ClassName "leftPanelComponent") ]
         [ HH.label
-           [ HP.class_ (H.ClassName "labelAlignment") ]
-           [ HH.text "scale download:" ]
+            [ HP.class_ (H.ClassName "labelAlignment") ]
+            [ HH.text "scale download:" ]
         , HH.input
-            [ HE.onValueInput  (GetImageScale <<< toScale )
+            [ HE.onValueInput (GetImageScale <<< toScale)
             , HP.type_ HP.InputRange
             , HP.id "scale-slider"
             , HP.class_ (H.ClassName "scaling-slider")
@@ -210,17 +213,17 @@ component =
     let
       enabled =
         (length state.instruments > 0) &&
-        (length state.chordShape.fingering > 0)
+          (length state.chordShape.fingering > 0)
       className =
         if enabled then "hoverable" else "unhoverable"
     in
       HH.div_
         [ HH.button
-          [ HE.onClick \_ -> PlayChord
-          , HP.class_ $ ClassName className
-          , HP.enabled enabled
-          ]
-          [ HH.text "play" ]
+            [ HE.onClick \_ -> PlayChord
+            , HP.class_ $ ClassName className
+            , HP.enabled enabled
+            ]
+            [ HH.text "play" ]
         ]
 
   handleAction ∷ Action → H.HalogenM State Action ChildSlots o m Unit
@@ -230,12 +233,15 @@ component =
       mCanvas <- H.liftEffect $ getCanvasElementById "canvas"
       let
         canvas = unsafePartial (fromJust mCanvas)
-        -- audioCtx = unsafePartial (fromJust state.mAudioContext)
-      graphicsCtx <- H.liftEffect  $ getContext2D canvas
+      -- audioCtx = unsafePartial (fromJust state.mAudioContext)
+      graphicsCtx <- H.liftEffect $ getContext2D canvas
       -- _ <- H.liftEffect $ Drawing.render graphicsCtx chordDisplay
-      _ <- H.modify (\st -> st { mGraphicsContext = Just graphicsCtx
-                               , mCanvas = mCanvas
-                               })
+      _ <- H.modify
+        ( \st -> st
+            { mGraphicsContext = Just graphicsCtx
+            , mCanvas = mCanvas
+            }
+        )
       _ <- handleQuery (GetCanvasOffset unit)
       _ <- handleQuery (DisplayFingering unit)
       _ <- handleQuery (LoadInstruments unit)
@@ -245,26 +251,25 @@ component =
       let
         x = toNumber cx - state.canvasPosition.left
         y = toNumber cy - state.canvasPosition.top
-        mKey = fingeredKey {x,y}
-      if (isJust mKey)
-        then do
-          let
-            {-}
-            foo = spy "X:" x
-            bar = spy "Y:" y
-            -}
-            key = unsafePartial (fromJust mKey)
-            {-}
-            foo = spy "string:" fstring.stringNumber
-            bar = spy "fret:" fstring.fretNumber
-            -}
-            newFingering = alterFingering key state.chordShape.fingering
-            newChordShape = state.chordShape { fingering = newFingering }
-          _ <- H.modify (\st -> st { chordShape = newChordShape, errorText = "" })
-          _ <- handleQuery (DisplayFingering unit)
-          pure unit
-        else do
-          pure unit
+        mKey = fingeredKey { x, y }
+      if (isJust mKey) then do
+        let
+          {-}
+          foo = spy "X:" x
+          bar = spy "Y:" y
+          -}
+          key = unsafePartial (fromJust mKey)
+          {-}
+          foo = spy "string:" fstring.stringNumber
+          bar = spy "fret:" fstring.fretNumber
+          -}
+          newFingering = alterFingering key state.chordShape.fingering
+          newChordShape = state.chordShape { fingering = newFingering }
+        _ <- H.modify (\st -> st { chordShape = newChordShape, errorText = "" })
+        _ <- handleQuery (DisplayFingering unit)
+        pure unit
+      else do
+        pure unit
     GetChordName name -> do
       state <- H.get
       let
@@ -295,9 +300,9 @@ component =
       let
         validated = validateJson filespec.contents
         newState = validation
-                    (\errs -> state { errorText = foldl (<>) "" errs})
-                    (\chordShape -> state {chordShape = chordShape, errorText = ""} )
-                    validated
+          (\errs -> state { errorText = foldl (<>) "" errs })
+          (\chordShape -> state { chordShape = chordShape, errorText = "" })
+          validated
       _ <- H.put newState
       _ <- handleQuery (DisplayFingering unit)
       pure unit
@@ -329,10 +334,10 @@ component =
         foo = spy "Left:" left
         bar = spy "Top:" top
       -}
-      _ <- H.modify (\st -> st { canvasPosition  = { left, top } })
+      _ <- H.modify (\st -> st { canvasPosition = { left, top } })
       pure (Just next)
     LoadInstruments next -> do
-      instruments <- H.liftAff $  loadRemoteSoundFonts  [AcousticGrandPiano]
+      instruments <- H.liftAff $ loadRemoteSoundFonts [ AcousticGrandPiano ]
       _ <- H.modify (\st -> st { instruments = instruments })
       pure (Just next)
     DisplayFingering next -> do
@@ -343,7 +348,7 @@ component =
       _ <- H.liftEffect do
         clearCanvas state
         Drawing.render graphicsCtx
-                  $ displayChord state.chordShape
+          $ displayChord state.chordShape
       pure (Just next)
 
   canvasClickHandler :: MouseEvent -> Action
@@ -354,11 +359,12 @@ component =
   clearCanvas state = do
     let
       graphicsContext = unsafePartial (fromJust state.mGraphicsContext)
-    clearRect graphicsContext { x: 0.0
-                              , y: 0.0
-                              , width : toNumber canvasWidth
-                              , height : toNumber canvasHeight
-                              }
+    clearRect graphicsContext
+      { x: 0.0
+      , y: 0.0
+      , width: toNumber canvasWidth
+      , height: toNumber canvasHeight
+      }
 
   alterFingering :: Int -> Fingering -> Fingering
   alterFingering fingeredKey fingering =

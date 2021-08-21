@@ -11,14 +11,14 @@ import Simple.JSON (class ReadForeign, class WriteForeign)
 import Foreign (F, Foreign, ForeignError(..), readString, tagOf, unsafeToForeign)
 import Control.Monad.Except (mapExcept)
 
-data FingerStatus =
-    Primary
+data FingerStatus
+  = Primary
   | Secondary
 
 derive instance eqFingerStatus :: Eq FingerStatus
 
 instance showFingerStatusInst :: Show FingerStatus where
-   show = showFingerStatus
+  show = showFingerStatus
 
 instance readFingerStatusInst :: ReadForeign FingerStatus where
   readImpl = readForeignFingerStatus
@@ -29,9 +29,9 @@ instance writeForeignFingerStatus :: WriteForeign FingerStatus where
 readForeignFingerStatus :: Foreign -> F FingerStatus
 readForeignFingerStatus value =
   mapExcept (either (const error) fromString) (readString value)
-    where
-      fromString = maybe error pure <<< readFingerStatus
-      error = Left $ NEL.singleton $ TypeMismatch "FingerStatus" (tagOf value)
+  where
+  fromString = maybe error pure <<< readFingerStatus
+  error = Left $ NEL.singleton $ TypeMismatch "FingerStatus" (tagOf value)
 
 readFingerStatus :: String -> Maybe FingerStatus
 readFingerStatus s =

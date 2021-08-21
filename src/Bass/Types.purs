@@ -1,6 +1,5 @@
 module Bass.Types where
 
-
 import Prelude ((==))
 import Bass.FingerStatus (FingerStatus(..))
 
@@ -10,7 +9,6 @@ import Bass.FingerStatus (FingerStatus(..))
 data FingerStatus =
     Primary
   | Secondary
-
 derive instance eqFingerStatus :: Eq FingerStatus
 -}
 
@@ -34,14 +32,14 @@ type Fingering = Array StringPositions
 -- | a fingered string
 type FingeredString =
   { stringNumber :: Int
-  , fretNumber  :: FretNumber
+  , fretNumber :: FretNumber
   }
 
 -- | The editable chord shape of the bass
 type ChordShape =
-  { name :: String             -- the chord name
-  , firstFretOffset :: Int     -- which fret on the guitar does fret 1 represent
-  , fingering :: Fingering     -- the fretboard fingering
+  { name :: String -- the chord name
+  , firstFretOffset :: Int -- which fret on the guitar does fret 1 represent
+  , fingering :: Fingering -- the fretboard fingering
   }
 
 -- | the number of frets we display
@@ -51,7 +49,7 @@ displayedFretCount = 5
 -- | an open string
 open :: FingerPosition
 open =
-  { fret : 0, status : Primary }
+  { fret: 0, status: Primary }
 
 isOpenFret :: FingerPosition -> Boolean
 isOpenFret fp =
@@ -60,19 +58,21 @@ isOpenFret fp =
 -- | all the open strings
 openStrings :: Fingering
 openStrings =
-  [[open],[open],[open],[open]]
+  [ [ open ], [ open ], [ open ], [ open ] ]
 
 -- | all the closed strings
 closedStrings :: Fingering
 closedStrings =
-  [[],[],[],[]]
+  [ [], [], [], [] ]
 
 -- | test sample
 samplePattern :: Fingering
 samplePattern =
-  [[open],[{ fret : 2, status: Primary}]
-         ,[open, {fret: 4, status: Secondary}]
-         ,[ { fret: 1, status: Primary},{fret : 3, status : Secondary}]]
+  [ [ open ]
+  , [ { fret: 2, status: Primary } ]
+  , [ open, { fret: 4, status: Secondary } ]
+  , [ { fret: 1, status: Primary }, { fret: 3, status: Secondary } ]
+  ]
 
 -- | silent strings chord name
 closedStringsChordName :: String

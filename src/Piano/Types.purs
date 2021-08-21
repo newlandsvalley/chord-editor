@@ -12,7 +12,7 @@ type Fingering = Array FingerPosition
 
 -- | The editable chord shape of the piano
 type ChordShape =
-  { name :: String             -- the chord name
+  { name :: String -- the chord name
   , fingering :: Fingering
   }
 

@@ -67,7 +67,7 @@ component =
       { route } <- H.get
       -- don't re-render unnecessarily if the route is unchanged
       when (route /= Just dest) do
-         H.modify_ _ { route = Just dest }
+        H.modify_ _ { route = Just dest }
       pure (Just a)
 
   render :: State -> H.ComponentHTML Action ChildSlots m

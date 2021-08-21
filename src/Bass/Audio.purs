@@ -17,11 +17,11 @@ bass = 0
 -- | the MIDI note number of each bass guitar open string
 openStringMidiIds :: Array Int
 openStringMidiIds =
-  [28, 33, 38, 43]
+  [ 28, 33, 38, 43 ]
 
 -- | generate a MIDI note from the note fingering information
 toNote :: Int -> Int -> FingerPosition -> MidiNote
-toNote firstFretOffset stringNumber fingerPosition  =
+toNote firstFretOffset stringNumber fingerPosition =
   let
     openStringId :: Int
     openStringId =
@@ -29,7 +29,7 @@ toNote firstFretOffset stringNumber fingerPosition  =
     id =
       openStringId + fingerPosition.fret + firstFretOffset
   in
-    { channel: bass, id, timeOffset : 0.0, duration : 0.8, gain : 1.0 }
+    { channel: bass, id, timeOffset: 0.0, duration: 0.8, gain: 1.0 }
 
 -- | filter any notes that are not to be played
 -- | shouldn't be necessary because we shouldn't be able to provide a string
@@ -49,7 +49,7 @@ arpeggiate notes =
   let
     f :: Int -> MidiNote -> MidiNote
     f ix note =
-      note { timeOffset = toNumber ix * 0.7}
+      note { timeOffset = toNumber ix * 0.7 }
   in
     mapWithIndex f notes
 

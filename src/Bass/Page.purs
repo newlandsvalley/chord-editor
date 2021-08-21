@@ -30,7 +30,7 @@ import Web.DOM.ParentNode (QuerySelector(..))
 import Web.HTML.HTMLElement (offsetTop, offsetLeft)
 import Web.UIEvent.MouseEvent (MouseEvent, clientX, clientY)
 import Audio.SoundFont (Instrument, loadRemoteSoundFonts)
-import Data.Midi.Instrument (InstrumentName (ElectricBassPick))
+import Data.Midi.Instrument (InstrumentName(ElectricBassPick))
 import Serialization.Json (writeBass)
 import JS.FileIO (saveTextFile)
 import Halogen.FileInputComponent as FIC
@@ -40,8 +40,7 @@ import Type.Proxy (Proxy(..))
 type Slot = H.Slot Query Void
 
 type State =
-  {
-    mGraphicsContext :: Maybe Context2D
+  { mGraphicsContext :: Maybe Context2D
   , mCanvas :: Maybe CanvasElement
   , canvasPosition :: CanvasPosition
   , chordShape :: ChordShape
@@ -50,8 +49,8 @@ type State =
   , errorText :: String
   }
 
-data Action =
-    Init
+data Action
+  = Init
   | EditFingering Int Int
   | ClearFingering
   | GetChordName String
@@ -62,16 +61,15 @@ data Action =
   | Save
   | PlayChord
 
-data Query a =
-    GetCanvasOffset a
+data Query a
+  = GetCanvasOffset a
   | LoadInstruments a
   | DisplayFingering a
 
 type ChildSlots =
-  ( loadfile :: FIC.Slot Unit )
+  (loadfile :: FIC.Slot Unit)
 
 _loadfile = Proxy :: Proxy "loadfile"
-
 
 component :: ∀ i o m. MonadAff m => H.Component Query i o m
 component =
@@ -88,49 +86,48 @@ component =
 
   closedStringShape :: ChordShape
   closedStringShape =
-      { name : closedStringsChordName
-      , firstFretOffset : 0
-      , fingering : closedStrings
-      }
+    { name: closedStringsChordName
+    , firstFretOffset: 0
+    , fingering: closedStrings
+    }
 
   initialState :: i -> State
   initialState _ =
-    {
-      mGraphicsContext : Nothing
-    , mCanvas : Nothing
-    , canvasPosition : { left : 0.0, top : 0.0 }
-    , chordShape : closedStringShape
-    , exportScale : 100
-    , instruments : []
-    , errorText : ""
+    { mGraphicsContext: Nothing
+    , mCanvas: Nothing
+    , canvasPosition: { left: 0.0, top: 0.0 }
+    , chordShape: closedStringShape
+    , exportScale: 100
+    , instruments: []
+    , errorText: ""
     }
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
     HH.div_
       [ HH.h1
-         [HP.class_ (H.ClassName "center") ]
-         [HH.text "Bass Pattern Editor" ]
+          [ HP.class_ (H.ClassName "center") ]
+          [ HH.text "Bass Pattern Editor" ]
       , HH.canvas
-         [ HP.id "canvas"
-         , HE.onClick canvasClickHandler
-         , HP.height canvasHeight
-         , HP.width  canvasWidth
-         ]
+          [ HP.id "canvas"
+          , HE.onClick canvasClickHandler
+          , HP.height canvasHeight
+          , HP.width canvasWidth
+          ]
       , renderChordNameInput state
       , renderFirstFretNoInput state
       , HH.div_
-        [ renderImageScaleSlider state
-        , HH.text (show $ toNumber state.exportScale / 100.0)
-        ]
+          [ renderImageScaleSlider state
+          , HH.text (show $ toNumber state.exportScale / 100.0)
+          ]
       , HH.div_
-        [ renderClearFingeringButton
-        , renderExportPNGButton
-        ]
+          [ renderClearFingeringButton
+          , renderExportPNGButton
+          ]
       , HH.div_
-        [ renderLoadButton
-        , renderSaveButton
-        ]
+          [ renderLoadButton
+          , renderSaveButton
+          ]
       , renderPlayButton state
       , HH.text state.errorText
       ]
@@ -164,17 +161,17 @@ component =
       , HP.class_ $ ClassName "hoverable"
       , HP.enabled true
       ]
-      [ HH.text "save" ]    
+      [ HH.text "save" ]
 
   renderChordNameInput :: State -> H.ComponentHTML Action ChildSlots m
   renderChordNameInput state =
     HH.div
       [ HP.id "chord-name-div" ]
       [ HH.label
-        [ HP.id "chord-name-label" ]
-        [ HH.text "chord name:" ]
+          [ HP.id "chord-name-label" ]
+          [ HH.text "chord name:" ]
       , HH.input
-          [ HE.onValueInput  GetChordName
+          [ HE.onValueInput GetChordName
           , HP.value state.chordShape.name
           , HP.type_ HP.InputText
           , HP.id "chord-name-edit"
@@ -187,15 +184,15 @@ component =
     HH.div
       [ HP.id "fret-number-div" ]
       [ HH.label
-        [ HP.id "fret-number-label" ]
-        [ HH.text "first fret number:" ]
+          [ HP.id "fret-number-label" ]
+          [ HH.text "first fret number:" ]
       , HH.input
-          [ HE.onValueInput  GetFirstFretNumber
+          [ HE.onValueInput GetFirstFretNumber
           , HP.value (show state.chordShape.firstFretOffset)
           , HP.type_ HP.InputNumber
           , HP.min 0.0
           , HP.max 9.0
-          , HP.id  "fret-number-edit"
+          , HP.id "fret-number-edit"
           , HP.class_ $ ClassName "text-input"
           ]
       ]
@@ -208,12 +205,12 @@ component =
         fromMaybe 100 $ fromString s
     in
       HH.div
-        [ HP.class_ (H.ClassName "leftPanelComponent")]
+        [ HP.class_ (H.ClassName "leftPanelComponent") ]
         [ HH.label
-           [ HP.class_ (H.ClassName "labelAlignment") ]
-           [ HH.text "scale download:" ]
+            [ HP.class_ (H.ClassName "labelAlignment") ]
+            [ HH.text "scale download:" ]
         , HH.input
-            [ HE.onValueInput  (GetImageScale <<< toScale )
+            [ HE.onValueInput (GetImageScale <<< toScale)
             , HP.type_ HP.InputRange
             , HP.id "scale-slider"
             , HP.class_ (H.ClassName "scaling-slider")
@@ -229,7 +226,7 @@ component =
     let
       enabled =
         (length state.instruments > 0) &&
-        (not $ isSilent state.chordShape.fingering )
+          (not $ isSilent state.chordShape.fingering)
       className =
         if enabled then "hoverable" else "unhoverable"
     in
@@ -242,7 +239,6 @@ component =
             [ HH.text "play" ]
         ]
 
-
   handleAction ∷ Action → H.HalogenM State Action ChildSlots o m Unit
   handleAction = case _ of
     Init -> do
@@ -250,12 +246,15 @@ component =
       mCanvas <- H.liftEffect $ getCanvasElementById "canvas"
       let
         canvas = unsafePartial (fromJust mCanvas)
-        -- audioCtx = unsafePartial (fromJust state.mAudioContext)
-      graphicsCtx <- H.liftEffect  $ getContext2D canvas
+      -- audioCtx = unsafePartial (fromJust state.mAudioContext)
+      graphicsCtx <- H.liftEffect $ getContext2D canvas
       -- _ <- H.liftEffect $ Drawing.render graphicsCtx chordDisplay
-      _ <- H.modify (\st -> st { mGraphicsContext = Just graphicsCtx
-                               , mCanvas = mCanvas
-                               })
+      _ <- H.modify
+        ( \st -> st
+            { mGraphicsContext = Just graphicsCtx
+            , mCanvas = mCanvas
+            }
+        )
       _ <- handleQuery (GetCanvasOffset unit)
       _ <- handleQuery (DisplayFingering unit)
       _ <- handleQuery (LoadInstruments unit)
@@ -265,25 +264,24 @@ component =
       let
         x = toNumber cx - state.canvasPosition.left
         y = toNumber cy - state.canvasPosition.top
-      if (y > titleDepth)
-        then do
-          let
-            {-}
-            foo = spy "X:" x
-            bar = spy "Y:" y
-            -}
-            fstring = fingeredString {x,y}
-            {-}
-            foo = spy "string:" fstring.stringNumber
-            bar = spy "fret:" fstring.fretNumber
-            -}
-            newFingering = alterFingering fstring state.chordShape.fingering
-            newShape = state.chordShape {fingering = newFingering}
-          _ <- H.modify (\st -> st { chordShape = newShape, errorText = "" })
-          _ <- handleQuery (DisplayFingering unit)
-          pure unit
-        else do
-          pure unit
+      if (y > titleDepth) then do
+        let
+          {-}
+          foo = spy "X:" x
+          bar = spy "Y:" y
+          -}
+          fstring = fingeredString { x, y }
+          {-}
+          foo = spy "string:" fstring.stringNumber
+          bar = spy "fret:" fstring.fretNumber
+          -}
+          newFingering = alterFingering fstring state.chordShape.fingering
+          newShape = state.chordShape { fingering = newFingering }
+        _ <- H.modify (\st -> st { chordShape = newShape, errorText = "" })
+        _ <- handleQuery (DisplayFingering unit)
+        pure unit
+      else do
+        pure unit
     GetChordName name -> do
       state <- H.get
       let
@@ -323,9 +321,9 @@ component =
       let
         validated = validateJson filespec.contents
         newState = validation
-                    (\errs -> state { errorText = foldl (<>) "" errs})
-                    (\chordShape -> state {chordShape = chordShape, errorText = ""} )
-                    validated
+          (\errs -> state { errorText = foldl (<>) "" errs })
+          (\chordShape -> state { chordShape = chordShape, errorText = "" })
+          validated
       _ <- H.put newState
       _ <- handleQuery (DisplayFingering unit)
       pure unit
@@ -355,10 +353,10 @@ component =
         canvasElement = unsafePartial (fromJust mCanvasElement)
       left <- H.liftEffect $ offsetLeft canvasElement
       top <- H.liftEffect $ offsetTop canvasElement
-      _ <- H.modify (\st -> st { canvasPosition  = { left, top } })
+      _ <- H.modify (\st -> st { canvasPosition = { left, top } })
       pure (Just next)
     LoadInstruments next -> do
-      instruments <- H.liftAff $  loadRemoteSoundFonts  [ElectricBassPick]
+      instruments <- H.liftAff $ loadRemoteSoundFonts [ ElectricBassPick ]
       _ <- H.modify (\st -> st { instruments = instruments })
       pure (Just next)
     DisplayFingering next -> do
@@ -369,7 +367,7 @@ component =
       _ <- H.liftEffect do
         clearCanvas state
         Drawing.render graphicsCtx
-                  $ displayChord state.chordShape
+          $ displayChord state.chordShape
       pure (Just next)
 
   canvasClickHandler :: MouseEvent -> Action
@@ -380,23 +378,25 @@ component =
   clearCanvas state = do
     let
       graphicsContext = unsafePartial (fromJust state.mGraphicsContext)
-    clearRect graphicsContext { x: 0.0
-                              , y: 0.0
-                              , width : toNumber canvasWidth
-                              , height : toNumber canvasHeight
-                              }
+    clearRect graphicsContext
+      { x: 0.0
+      , y: 0.0
+      , width: toNumber canvasWidth
+      , height: toNumber canvasHeight
+      }
 
   alterFingering :: FingeredString -> Fingering -> Fingering
   alterFingering fingeredString fingering =
     let
       currentStringPositions = unsafePartial $ fromJust $
-                        index fingering (fingeredString.stringNumber)
+        index fingering (fingeredString.stringNumber)
       newStringPositions =
         -- silent string
         if (null currentStringPositions) then
-          [{ fret: fingeredString.fretNumber
-           , status: Primary
-           }]
+          [ { fret: fingeredString.fretNumber
+            , status: Primary
+            }
+          ]
         else
           let
             maybeFingering =
@@ -419,35 +419,34 @@ component =
               _ ->
                 -- add a completely new fretted position
                 snoc currentStringPositions
-                   { fret: fingeredString.fretNumber
-                   , status : Primary
-                   }
+                  { fret: fingeredString.fretNumber
+                  , status: Primary
+                  }
 
       mNewFingering =
-         updateAt fingeredString.stringNumber newStringPositions fingering
+        updateAt fingeredString.stringNumber newStringPositions fingering
     in
       fromMaybe fingering mNewFingering
-
 
 -- | extract, if we can, any finger position on the string in question at the
 -- | current fret
 extract :: StringPositions -> FretNumber -> Maybe FingerPosition
 extract stringPositions fretNumber =
-  head $ filter (\{fret, status} -> fret == fretNumber) stringPositions
+  head $ filter (\{ fret, status } -> fret == fretNumber) stringPositions
 
 -- | remove, if we can, any finger position on the string in question at the
 -- | current fret
 remove :: StringPositions -> FretNumber -> StringPositions
 remove stringPositions fretNumber =
-  filter (\{fret, status} -> fret /= fretNumber) stringPositions
+  filter (\{ fret, status } -> fret /= fretNumber) stringPositions
 
 -- | set the status of the fingering at the required fret to 'Secondary'
 setSecondaryStatus :: StringPositions -> FretNumber -> StringPositions
 setSecondaryStatus stringPositions fretNumber =
   snoc (remove stringPositions fretNumber)
-     { fret: fretNumber
-     , status : Secondary
-     }
+    { fret: fretNumber
+    , status: Secondary
+    }
 
 isSilent :: Fingering -> Boolean
 isSilent fingering =
