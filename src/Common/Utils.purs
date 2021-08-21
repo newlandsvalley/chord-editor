@@ -50,17 +50,19 @@ jsonFileInputCtx =
 -- | convert a MIDI pitch to a pitched note name
 toPitchClass :: Int -> String
 toPitchClass midiPitch =
-  case (mod midiPitch 12) of
-    0 -> "C"
-    1 -> "C#/Db"
-    2 -> "D"
-    3 -> "D#/Eb"
-    4 -> "E"
-    5 -> "F"
-    6 -> "F#/Gb"
-    7 -> "G"
-    8 -> "G#/Ab"
-    9 -> "A"
-    10 -> "A#Bb"
-    11 -> "B"
-    _ -> "C"
+  if (0 == midiPitch) then "-"
+  else
+    case (mod midiPitch 12) of
+      0 -> "C"
+      1 -> "C#/Db"
+      2 -> "D"
+      3 -> "D#/Eb"
+      4 -> "E"
+      5 -> "F"
+      6 -> "F#/Gb"
+      7 -> "G"
+      8 -> "G#/Ab"
+      9 -> "A"
+      10 -> "A#Bb"
+      11 -> "B"
+      _ -> "C"
