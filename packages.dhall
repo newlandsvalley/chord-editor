@@ -105,7 +105,8 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.14.2-20210713/packages.dhall sha256:654c3148cb995f642c73b4508d987d9896e2ad3ea1d325a1e826c034c0d3cd7b
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.0-20220510/packages.dhall
+        sha256:0b0d4db1f2f0acd3b37fa53220644ac6f64cf9b5d0226fd097c0593df563d5be
 
 in  upstream
   with halogen-components =
@@ -120,10 +121,59 @@ in  upstream
       ]
     , repo =
         "https://github.com/newlandsvalley/purescript-halogen-components.git"
-    , version = "ps014"
+    , version = "ps015"
     }
-  with halogen-css =
-    { dependencies = [ "css", "halogen" ]
-    , repo = "https://github.com/newlandsvalley/purescript-halogen-css.git"
-    , version = "master"
+  with drawing =
+    { dependencies =  
+      [ "canvas"
+      , "colors"
+      , "console"
+      , "control"
+      , "effect"
+      , "foldable-traversable"
+      , "lists"
+      , "maybe"
+      , "numbers"
+      , "prelude"
+      ]
+    , repo = "https://github.com/newlandsvalley/purescript-drawing.git"
+    , version = "ps015"
+    }
+  with optparse = 
+    { dependencies = 
+      [ "prelude"
+      , "effect"
+      , "exitcodes"
+      , "strings"
+      , "arrays"
+      , "console"
+      , "open-memoize"
+      , "transformers"
+      , "exists"
+      , "node-process"
+      , "free"
+      , "quickcheck"
+      , "spec"
+      , "aff"
+      , "bifunctors"
+      , "control"
+      , "either"
+      , "enums"
+      , "foldable-traversable"
+      , "gen"
+      , "integers"
+      , "lazy"
+      , "lists"
+      , "maybe"
+      , "newtype"
+      , "node-buffer"
+      , "node-streams"
+      , "nonempty"
+      , "numbers"
+      , "partial"
+      , "tailrec"
+      , "tuples"
+      ]
+    , repo = "https://github.com/f-o-a-m/purescript-optparse.git"
+    , version = "v5.0.0"
     }

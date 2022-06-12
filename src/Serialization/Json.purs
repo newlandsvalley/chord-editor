@@ -5,7 +5,7 @@ import Foreign (MultipleErrors)
 import Piano.Types as Piano
 import Guitar.Types as Guitar
 import Bass.Types as Bass
-import Simple.JSON as JSON
+import Yoga.JSON as JSON
 
 writePiano :: Piano.ChordShape -> String
 writePiano =

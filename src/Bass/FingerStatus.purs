@@ -7,7 +7,7 @@ import Prelude (class Eq, class Show, (<<<), ($), const, pure)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Either (Either(..), either)
 import Data.List.NonEmpty (singleton) as NEL
-import Simple.JSON (class ReadForeign, class WriteForeign)
+import Yoga.JSON (class ReadForeign, class WriteForeign)
 import Foreign (F, Foreign, ForeignError(..), readString, tagOf, unsafeToForeign)
 import Control.Monad.Except (mapExcept)
 

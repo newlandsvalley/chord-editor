@@ -2,7 +2,7 @@
 "use strict";
 
 /* Canvas Donwload */
-exports.exportAs = function(canvas) {
+export function exportAs(canvas) {
   return function (filename) {
     return function (mimeType) {
       return function() {
@@ -33,9 +33,9 @@ exports.exportAs = function(canvas) {
       };
     };
   };
-};
+}
 
-exports.scaleCanvas = function(canvas) {
+export function scaleCanvas(canvas) {
   return function (factor) {
     return function() {
       // create a new canvas just to hold the download image
@@ -55,4 +55,4 @@ exports.scaleCanvas = function(canvas) {
       return downloadCanvas;
     };
   };
-};
+}

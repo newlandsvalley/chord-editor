@@ -8,7 +8,7 @@ import Bass.Validation (validate, validateJson) as BVAL
 import Control.Monad.Free (Free)
 import Data.List.NonEmpty (singleton)
 import Data.Maybe (Maybe(..))
-import Data.Validation.Semigroup (unV)
+import Data.Validation.Semigroup (validation)
 import Effect (Effect)
 import Guitar.Types as Guitar
 import Guitar.Validation (validate, validateJson) as GVAL
@@ -31,15 +31,15 @@ pianoSuite =
     test "write F chord" do
       Assert.equal pianoFJSON $ writePiano pianoF
     test "read F chord" do
-      unV (const $ failure "successful validation expected")
+      validation (const $ failure "successful validation expected")
           (Assert.equal pianoF)
           (PVAL.validateJson pianoFJSON)
     test "read bad JSON" do
-      unV (Assert.equal $ singleton "Not a recognisable piano chord format.")
+      validation (Assert.equal $ singleton "Not a recognisable piano chord format.")
           (const $ failure "bad JSON expected")
           (PVAL.validateJson badJSON)
     test "reject bad finger position" do
-      unV (Assert.equal $ singleton "Finger position 24 is out of range.")
+      validation (Assert.equal $ singleton "Finger position 24 is out of range.")
           (const $ failure "bad fingering expected")
           (PVAL.validate pianoBadFinger)
 
@@ -51,31 +51,31 @@ guitarSuite =
     test "write F chord" do
       Assert.equal guitarFJSON $ writeGuitar guitarF
     test "read A chord" do
-      unV (const $ failure "successful validation expected")
+      validation (const $ failure "successful validation expected")
         (Assert.equal guitarA)
         (GVAL.validateJson guitarAJSON)
     test "read F chord" do
-      unV (const $ failure "successful validation expected")
+      validation (const $ failure "successful validation expected")
         (Assert.equal guitarF)
         (GVAL.validateJson guitarFJSON)
     test "read bad JSON" do
-      unV (Assert.equal $ singleton "Not a recognisable guitar chord format.")
+      validation (Assert.equal $ singleton "Not a recognisable guitar chord format.")
         (const $ failure "bad JSON expected")
         (GVAL.validateJson badJSON)
     test "reject bad finger position" do
-      unV (Assert.equal $ singleton "Finger position 50 is out of range.")
+      validation (Assert.equal $ singleton "Finger position 50 is out of range.")
         (const $ failure "bad fingering expected")
         (GVAL.validate guitarBadFinger)
     test "reject bad first fret offset" do
-      unV (Assert.equal $ singleton "First fret offset should be between 0 and 27.")
+      validation (Assert.equal $ singleton "First fret offset should be between 0 and 27.")
         (const $ failure "bad fret offset expected")
         (GVAL.validate guitarBadFretOffset)
     test "reject bad string number in barre" do
-      unV (Assert.equal $ singleton "Invalid string number of 7 in the barré.")
+      validation (Assert.equal $ singleton "Invalid string number of 7 in the barré.")
         (const $ failure "bad barre expected")
         (GVAL.validate guitarBadBarre)
     test "reject fingering hidden by barre" do
-      unV (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
+      validation (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
         (const $ failure "hidden by barre expected")
         (GVAL.validate guitarHiddenByBarre)
 
@@ -85,23 +85,23 @@ bassSuite =
     test "write G chord" do
       Assert.equal bassGJSON $ writeBass bassG
     test "read G chord" do
-      unV (const $ failure "successful validation expected")
+      validation (const $ failure "successful validation expected")
         (Assert.equal bassG)
         (BVAL.validateJson bassGJSON)
     test "read bad JSON" do
-      unV (Assert.equal $ singleton "Not a recognisable bass chord format.")
+      validation (Assert.equal $ singleton "Not a recognisable bass chord format.")
         (const $ failure "bad JSON expected")
         (BVAL.validateJson badJSON)
     test "reject bad finger position" do
-      unV (Assert.equal $ singleton "Finger position -2 is out of range.")
+      validation (Assert.equal $ singleton "Finger position -2 is out of range.")
         (const $ failure "bad fingering expected")
         (BVAL.validate bassBadFinger)
     test "reject bad string count" do
-      unV (Assert.equal $ singleton "Fingering for all 4 strings is required.")
+      validation (Assert.equal $ singleton "Fingering for all 4 strings is required.")
         (const $ failure "bad string count expected")
         (BVAL.validate bassBadStringCount)
     test "reject bad first fret offset" do
-      unV (Assert.equal $ singleton "First fret offset should be between 0 and 36.")
+      validation (Assert.equal $ singleton "First fret offset should be between 0 and 36.")
         (const $ failure "bad fret offset expected")
         (BVAL.validate bassBadFretOffset)
 

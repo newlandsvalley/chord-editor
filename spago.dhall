@@ -27,7 +27,6 @@ You can edit this file as you like.
   , "prelude"
   , "routing"
   , "routing-duplex"
-  , "simple-json"
   , "soundfonts"
   , "strings"
   , "transformers"
@@ -36,6 +35,7 @@ You can edit this file as you like.
   , "web-dom"
   , "web-html"
   , "web-uievents"
+  , "yoga-json"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
