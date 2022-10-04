@@ -10,7 +10,7 @@ import Data.Maybe (Maybe)
 type FingerPosition = Int
 
 -- | fingering is represented as an array of finger positions,
--- | one for each of the 6 strings
+-- | one for each of the 4 strings
 type Fingering = Array FingerPosition
 
 -- | a fingered string
@@ -19,7 +19,7 @@ type FingeredString =
   , fretNumber :: FingerPosition
   }
 
--- | a barré
+-- | a barreé
 type Barre =
   Maybe FingeredString
 

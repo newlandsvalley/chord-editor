@@ -22,15 +22,15 @@ import Serialization.Json (readTenorGuitar)
 maxFrets :: Int
 maxFrets = 20
 
--- | validate a prospective guitar chord JSON String
+-- | validate a prospective tenor guitar chord JSON String
 validateJson :: String -> Validated ChordShape
 validateJson json =
   either
-    (const $ invalid $ pure "Not a recognisable guitar chord format.")
+    (const $ invalid $ pure "Not a recognisable tenor guitar chord format.")
     validate
     (readTenorGuitar json)
 
--- | validate a prospective guitar chord
+-- | validate a prospective tenor guitar chord
 validate :: ChordShape -> Validated ChordShape
 validate chordShape =
   ( { name: chordShape.name, firstFretOffset: _, barre: _, fingering: _ }

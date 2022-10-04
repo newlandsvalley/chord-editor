@@ -3,7 +3,7 @@ module TenorGuitar.Audio
   , playChord
   ) where
 
--- | play the tenorguitar chord through Web Audio by means of generating
+-- | play the tenor guitar chord through Web Audio by means of generating
 -- | the MIDI notes
 
 import Prelude (Unit, ($), (<), (<=), (+), map, max, void)
@@ -61,6 +61,5 @@ playChord fingering firstFretOffset mBarre instruments =
 getMidiPitches :: Fingering -> Int -> Barre -> Array Int
 getMidiPitches fingering firstFretOffset mBarre =
   map _.id notes
-
   where
   notes = mapWithIndex (toNote firstFretOffset mBarre) fingering

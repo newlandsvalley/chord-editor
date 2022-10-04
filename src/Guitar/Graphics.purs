@@ -99,7 +99,7 @@ fret n =
       (fillColor black)
       (rectangle nutxOffset (nutDepth + nutyOffset + fretyOffset) neckWidth fretWidth)
 
--- draw thw frets
+-- draw the frets
 frets :: Drawing
 frets =
   let
