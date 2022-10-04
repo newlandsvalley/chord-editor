@@ -14,6 +14,7 @@ import Routing.Duplex.Generic.Syntax ((/))
 data Route
   = Home
   | Guitar
+  | TenorGuitar
   | Bass
   | Piano
 
@@ -29,6 +30,7 @@ routeCodec :: RouteDuplex' Route
 routeCodec = root $ sum
   { "Home": noArgs
   , "Guitar": "guitar" / noArgs
+  , "TenorGuitar": "tenorguitar" / noArgs
   , "Bass": "bass" / noArgs
   , "Piano": "piano" / noArgs
   }

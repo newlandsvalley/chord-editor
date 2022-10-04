@@ -12,6 +12,8 @@ import Data.Validation.Semigroup (validation)
 import Effect (Effect)
 import Guitar.Types as Guitar
 import Guitar.Validation (validate, validateJson) as GVAL
+import TenorGuitar.Types as TenorGuitar
+import TenorGuitar.Validation (validate, validateJson) as TGVAL
 import Piano.Types as Piano
 import Piano.Validation (validate, validateJson) as PVAL
 import Prelude (($), (<>), Unit, const, discard, negate)
@@ -23,6 +25,7 @@ main :: Effect Unit
 main = runTest do
   pianoSuite
   guitarSuite
+  tenorGuitarSuite
   bassSuite
 
 pianoSuite :: Free TestF Unit
@@ -78,6 +81,14 @@ guitarSuite =
       validation (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
         (const $ failure "hidden by barre expected")
         (GVAL.validate guitarHiddenByBarre)
+
+tenorGuitarSuite :: Free TestF Unit
+tenorGuitarSuite =
+  suite "tenor guitar serialization" do
+    test "write C chord" do
+      Assert.equal tenorguitarCJSON $ writeTenorGuitar tenorguitarC
+    test "write F chord" do
+      Assert.equal tenorguitarFJSON $ writeTenorGuitar tenorguitarF
 
 bassSuite :: Free TestF Unit
 bassSuite =
@@ -176,6 +187,30 @@ guitarAJSON =
 guitarFJSON :: String
 guitarFJSON =
   """{"name":"F","firstFretOffset":0,"fingering":[-1,3,2,2,-1,-1],"barre":{"stringNumber":0,"fretNumber":1}}"""
+
+tenorguitarC :: TenorGuitar.ChordShape
+tenorguitarC =
+  { name : "C"
+  , firstFretOffset: 0
+  , barre : Nothing
+  , fingering :   [TenorGuitar.open,TenorGuitar.open,2,3]
+  }
+
+tenorguitarF :: TenorGuitar.ChordShape
+tenorguitarF =
+  { name : "F"
+  , firstFretOffset: 0
+  , barre : Nothing
+  , fingering : [TenorGuitar.open,2,3,TenorGuitar.open]
+  }
+
+tenorguitarCJSON :: String
+tenorguitarCJSON =
+  """{"name":"C","firstFretOffset":0,"fingering":[0,0,2,3]}"""
+
+tenorguitarFJSON :: String
+tenorguitarFJSON =
+  """{"name":"F","firstFretOffset":0,"fingering":[0,2,3,0]}"""
 
 bassG :: Bass.ChordShape
 bassG =
