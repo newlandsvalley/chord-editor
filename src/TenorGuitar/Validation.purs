@@ -50,7 +50,7 @@ validateBarre :: Barre -> Validated Barre
 validateBarre mbarre =
   case mbarre of
     Just barre ->
-      if (barre.stringNumber < 0 || barre.stringNumber >= 6) then
+      if (barre.stringNumber < 0 || barre.stringNumber >= 4) then
         invalid $ pure
           ( "Invalid string number of "
               <> show barre.stringNumber
@@ -72,7 +72,7 @@ validateBarre mbarre =
 validateFingering :: Fingering -> Validated Fingering
 validateFingering fingering =
   if (length fingering /= 4) then
-    invalid $ pure "Fingering for all 6 strings is required."
+    invalid $ pure "Fingering for all 4 strings is required."
   else
     validateFingerPositions fingering
 
