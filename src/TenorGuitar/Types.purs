@@ -23,12 +23,12 @@ type FingeredString =
 type Barre =
   Maybe FingeredString
 
--- | The editable chord shape of the guitar
+-- | The editable chord shape of the tenor guitar
 type ChordShape =
   { name :: String -- the chord name
-  , firstFretOffset :: Int -- which fret on the guitar does fret 1 represent
+  , firstFretOffset :: Int -- which fret on the tenor guitar does fret 1 represent
   , barre :: Barre -- a barré at this fret from this string to
-  -- the final string (5)
+  -- the final string (4)
   , fingering :: Fingering -- the fingering
   }
 
@@ -52,7 +52,7 @@ silent = -1
 -- | all the open strings
 openStrings :: Fingering
 openStrings =
-  [ open, open, open, open  ]
+  [ open, open, open, open ]
 
 -- | and the chord that is therefore produced
 openStringsChordName :: String
