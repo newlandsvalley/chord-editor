@@ -365,7 +365,7 @@ component =
         originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
-        fileName = (safeName state.chordShape.name) <> "_guitar"
+        fileName = (safeName state.chordShape.name) <> "_tenor_guitar"
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
       _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
