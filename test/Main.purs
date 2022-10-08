@@ -97,6 +97,10 @@ tenorGuitarSuite =
       validation (const $ failure "successful validation expected")
         (Assert.equal tenorguitarF)
         (TGVAL.validateJson tenorguitarFJSON)
+    test "read bad JSON" do
+      validation (Assert.equal $ singleton "Not a recognisable tenor guitar chord format.")
+        (const $ failure "bad JSON expected")
+        (TGVAL.validateJson badJSON)
 
 bassSuite :: Free TestF Unit
 bassSuite =
