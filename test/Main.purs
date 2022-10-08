@@ -89,6 +89,14 @@ tenorGuitarSuite =
       Assert.equal tenorguitarCJSON $ writeTenorGuitar tenorguitarC
     test "write F chord" do
       Assert.equal tenorguitarFJSON $ writeTenorGuitar tenorguitarF
+    test "read C chord" do
+      validation (const $ failure "successful validation expected")
+        (Assert.equal tenorguitarC)
+        (TGVAL.validateJson tenorguitarCJSON)
+    test "read F chord" do
+      validation (const $ failure "successful validation expected")
+        (Assert.equal tenorguitarF)
+        (TGVAL.validateJson tenorguitarFJSON)
 
 bassSuite :: Free TestF Unit
 bassSuite =
