@@ -105,6 +105,10 @@ tenorGuitarSuite =
       validation (Assert.equal $ singleton "Finger position 50 is out of range.")
         (const $ failure "bad fingering expected")
         (TGVAL.validate tenorGuitarBadFinger)
+    test "reject bad first fret offset" do
+      validation (Assert.equal $ singleton "First fret offset should be between 0 and 20.")
+        (const $ failure "bad fret offset expected")
+        (TGVAL.validate tenorGuitarBadFretOffset)
 
 bassSuite :: Free TestF Unit
 bassSuite =
@@ -234,6 +238,14 @@ tenorGuitarBadFinger =
   , firstFretOffset: 0
   , barre : Just { stringNumber : 0, fretNumber : 1 }
   , fingering : [TenorGuitar.silent,50,2,Guitar.silent]
+  }
+
+tenorGuitarBadFretOffset :: TenorGuitar.ChordShape
+tenorGuitarBadFretOffset =
+  { name : "F"
+  , firstFretOffset: 50
+  , barre : Just { stringNumber : 0, fretNumber : 1 }
+  , fingering : [TenorGuitar.silent,3,2,TenorGuitar.silent]
   }
 
 bassG :: Bass.ChordShape
