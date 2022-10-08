@@ -113,6 +113,10 @@ tenorGuitarSuite =
       validation (Assert.equal $ singleton "Invalid string number of 7 in the barré.")
         (const $ failure "bad barre expected")
         (TGVAL.validate tenorGuitarBadBarre)
+    test "reject fingering hidden by barre" do
+      validation (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
+        (const $ failure "hidden by barre expected")
+        (TGVAL.validate tenorGuitarHiddenByBarre)
 
 bassSuite :: Free TestF Unit
 bassSuite =
@@ -258,6 +262,14 @@ tenorGuitarBadBarre =
   , firstFretOffset: 0
   , barre : Just { stringNumber : 7, fretNumber : 1 }
   , fingering : [TenorGuitar.silent,3,2,TenorGuitar.silent]
+  }
+
+tenorGuitarHiddenByBarre :: TenorGuitar.ChordShape
+tenorGuitarHiddenByBarre =
+  { name : "G"
+  , firstFretOffset: 0
+  , barre : Just { stringNumber : 0, fretNumber : 3 }
+  , fingering : [Guitar.silent,5,4,2]
   }
 
 bassG :: Bass.ChordShape
