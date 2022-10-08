@@ -101,6 +101,10 @@ tenorGuitarSuite =
       validation (Assert.equal $ singleton "Not a recognisable tenor guitar chord format.")
         (const $ failure "bad JSON expected")
         (TGVAL.validateJson badJSON)
+    test "reject bad finger position" do
+      validation (Assert.equal $ singleton "Finger position 50 is out of range.")
+        (const $ failure "bad fingering expected")
+        (TGVAL.validate tenorGuitarBadFinger)
 
 bassSuite :: Free TestF Unit
 bassSuite =
@@ -223,6 +227,14 @@ tenorguitarCJSON =
 tenorguitarFJSON :: String
 tenorguitarFJSON =
   """{"name":"F","firstFretOffset":0,"fingering":[0,2,3,0]}"""
+
+tenorGuitarBadFinger :: TenorGuitar.ChordShape
+tenorGuitarBadFinger =
+  { name : "F"
+  , firstFretOffset: 0
+  , barre : Just { stringNumber : 0, fretNumber : 1 }
+  , fingering : [TenorGuitar.silent,50,2,Guitar.silent]
+  }
 
 bassG :: Bass.ChordShape
 bassG =
