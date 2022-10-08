@@ -71,7 +71,7 @@ validateBarre mbarre =
 
 validateFingering :: Fingering -> Validated Fingering
 validateFingering fingering =
-  if (length fingering /= 6) then
+  if (length fingering /= 4) then
     invalid $ pure "Fingering for all 6 strings is required."
   else
     validateFingerPositions fingering
