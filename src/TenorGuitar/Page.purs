@@ -383,7 +383,7 @@ component =
     Save -> do
       state <- H.get
       let
-        name = (safeName state.chordShape.name) <> "_guitar" <> ".json"
+        name = (safeName state.chordShape.name) <> "_tenorguitar" <> ".json"
         contents = writeGuitar state.chordShape
       _ <- H.liftEffect $ saveTextFile { name, contents }
       pure unit
