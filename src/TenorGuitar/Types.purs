@@ -39,7 +39,7 @@ data MouseAction
 
 -- | the number of frets we display
 displayedFretCount :: Int
-displayedFretCount = 4
+displayedFretCount = 6
 
 -- | an open string
 open :: FingerPosition
