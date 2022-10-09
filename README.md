@@ -12,7 +12,7 @@ The idea comes after a late night conversation over a glass of whisky with feles
 
 (Note that, in general, you don't play an out-and-out chord on a bass guitar - you tend to play an arpeggio through the chord which in turn means that very often more than one fret on the same string needs to be fingered.  The black circle represents a primary fret position and the gray square a secondary one.)
 
-and also piano:
+There is also support for [tenor guitar](https://en.wikipedia.org/wiki/Tenor_guitar) and piano:
 
 ![chord-diagram-piano](https://github.com/newlandsvalley/chord-builder/blob/master/F_piano.png)
 
