@@ -1,5 +1,5 @@
 -- | draw the fretboard
-module Guitar.Graphics
+module TenorGuitar.Graphics
   ( canvasHeight
   , canvasWidth
   , titleDepth
@@ -17,7 +17,7 @@ import Data.Int (floor, round, toNumber)
 import Data.String.CodeUnits (dropRight, length)
 import Graphics.Drawing (Drawing, circle, rectangle, filled, fillColor, text)
 import Graphics.Drawing.Font (bold, light, font, sansSerif)
-import Guitar.Types (ChordShape, FingeredString, Barre, open, silent, displayedFretCount)
+import TenorGuitar.Types (ChordShape, FingeredString, Barre, open, silent, displayedFretCount)
 import Common.Types (MouseCoordinates)
 
 canvasWidth :: Int
@@ -70,7 +70,7 @@ fretCount =
 
 stringCount :: Int
 stringCount =
-  6
+  4
 
 stringSeparation :: Number
 stringSeparation =

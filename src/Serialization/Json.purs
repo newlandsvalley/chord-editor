@@ -4,6 +4,7 @@ import Data.Either (Either)
 import Foreign (MultipleErrors)
 import Piano.Types as Piano
 import Guitar.Types as Guitar
+import TenorGuitar.Types as TenorGuitar
 import Bass.Types as Bass
 import Yoga.JSON as JSON
 
@@ -21,6 +22,14 @@ writeGuitar =
 
 readGuitar :: String -> Either MultipleErrors Guitar.ChordShape
 readGuitar =
+  JSON.readJSON
+
+writeTenorGuitar :: TenorGuitar.ChordShape -> String
+writeTenorGuitar =
+  JSON.writeJSON
+
+readTenorGuitar :: String -> Either MultipleErrors TenorGuitar.ChordShape
+readTenorGuitar =
   JSON.readJSON
 
 writeBass :: Bass.ChordShape -> String

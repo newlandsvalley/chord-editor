@@ -14,6 +14,7 @@ import Routing.Duplex as RD
 import Routing.Hash (getHash)
 import Navigation.Navigate (class Navigate, navigate)
 import Guitar.Page as Guitar
+import TenorGuitar.Page as TenorGuitar
 import Bass.Page as Bass
 import Piano.Page as Piano
 import Home.Page as Home
@@ -36,6 +37,7 @@ data Action
 type ChildSlots =
   ( home :: OpaqueSlot Unit
   , guitar :: Guitar.Slot Unit
+  , tenorguitar :: TenorGuitar.Slot Unit
   , bass :: Bass.Slot Unit
   , piano :: Piano.Slot Unit
   )
@@ -77,6 +79,8 @@ component =
         HH.slot (Proxy :: _ "home") unit Home.component unit absurd
       Guitar ->
         HH.slot (Proxy :: _ "guitar") unit Guitar.component unit absurd
+      TenorGuitar ->
+        HH.slot (Proxy :: _ "tenorguitar") unit TenorGuitar.component unit absurd
       Piano ->
         HH.slot (Proxy :: _ "piano") unit Piano.component unit absurd
       Bass ->

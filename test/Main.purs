@@ -12,6 +12,8 @@ import Data.Validation.Semigroup (validation)
 import Effect (Effect)
 import Guitar.Types as Guitar
 import Guitar.Validation (validate, validateJson) as GVAL
+import TenorGuitar.Types as TenorGuitar
+import TenorGuitar.Validation (validate, validateJson) as TGVAL
 import Piano.Types as Piano
 import Piano.Validation (validate, validateJson) as PVAL
 import Prelude (($), (<>), Unit, const, discard, negate)
@@ -23,6 +25,7 @@ main :: Effect Unit
 main = runTest do
   pianoSuite
   guitarSuite
+  tenorGuitarSuite
   bassSuite
 
 pianoSuite :: Free TestF Unit
@@ -78,6 +81,42 @@ guitarSuite =
       validation (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
         (const $ failure "hidden by barre expected")
         (GVAL.validate guitarHiddenByBarre)
+
+tenorGuitarSuite :: Free TestF Unit
+tenorGuitarSuite =
+  suite "tenor guitar serialization" do
+    test "write C chord" do
+      Assert.equal tenorguitarCJSON $ writeTenorGuitar tenorguitarC
+    test "write F chord" do
+      Assert.equal tenorguitarFJSON $ writeTenorGuitar tenorguitarF
+    test "read C chord" do
+      validation (const $ failure "successful validation expected")
+        (Assert.equal tenorguitarC)
+        (TGVAL.validateJson tenorguitarCJSON)
+    test "read F chord" do
+      validation (const $ failure "successful validation expected")
+        (Assert.equal tenorguitarF)
+        (TGVAL.validateJson tenorguitarFJSON)
+    test "read bad JSON" do
+      validation (Assert.equal $ singleton "Not a recognisable tenor guitar chord format.")
+        (const $ failure "bad JSON expected")
+        (TGVAL.validateJson badJSON)
+    test "reject bad finger position" do
+      validation (Assert.equal $ singleton "Finger position 50 is out of range.")
+        (const $ failure "bad fingering expected")
+        (TGVAL.validate tenorGuitarBadFinger)
+    test "reject bad first fret offset" do
+      validation (Assert.equal $ singleton "First fret offset should be between 0 and 20.")
+        (const $ failure "bad fret offset expected")
+        (TGVAL.validate tenorGuitarBadFretOffset)
+    test "reject bad string number in barre" do
+      validation (Assert.equal $ singleton "Invalid string number of 7 in the barré.")
+        (const $ failure "bad barre expected")
+        (TGVAL.validate tenorGuitarBadBarre)
+    test "reject fingering hidden by barre" do
+      validation (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
+        (const $ failure "hidden by barre expected")
+        (TGVAL.validate tenorGuitarHiddenByBarre)
 
 bassSuite :: Free TestF Unit
 bassSuite =
@@ -176,6 +215,62 @@ guitarAJSON =
 guitarFJSON :: String
 guitarFJSON =
   """{"name":"F","firstFretOffset":0,"fingering":[-1,3,2,2,-1,-1],"barre":{"stringNumber":0,"fretNumber":1}}"""
+
+tenorguitarC :: TenorGuitar.ChordShape
+tenorguitarC =
+  { name : "C"
+  , firstFretOffset: 0
+  , barre : Nothing
+  , fingering :   [TenorGuitar.open,TenorGuitar.open,2,3]
+  }
+
+tenorguitarF :: TenorGuitar.ChordShape
+tenorguitarF =
+  { name : "F"
+  , firstFretOffset: 0
+  , barre : Nothing
+  , fingering : [TenorGuitar.open,2,3,TenorGuitar.open]
+  }
+
+tenorguitarCJSON :: String
+tenorguitarCJSON =
+  """{"name":"C","firstFretOffset":0,"fingering":[0,0,2,3]}"""
+
+tenorguitarFJSON :: String
+tenorguitarFJSON =
+  """{"name":"F","firstFretOffset":0,"fingering":[0,2,3,0]}"""
+
+tenorGuitarBadFinger :: TenorGuitar.ChordShape
+tenorGuitarBadFinger =
+  { name : "F"
+  , firstFretOffset: 0
+  , barre : Just { stringNumber : 0, fretNumber : 1 }
+  , fingering : [TenorGuitar.silent,50,2,Guitar.silent]
+  }
+
+tenorGuitarBadFretOffset :: TenorGuitar.ChordShape
+tenorGuitarBadFretOffset =
+  { name : "F"
+  , firstFretOffset: 50
+  , barre : Just { stringNumber : 0, fretNumber : 1 }
+  , fingering : [TenorGuitar.silent,3,2,TenorGuitar.silent]
+  }
+
+tenorGuitarBadBarre :: TenorGuitar.ChordShape
+tenorGuitarBadBarre =
+  { name : "F"
+  , firstFretOffset: 0
+  , barre : Just { stringNumber : 7, fretNumber : 1 }
+  , fingering : [TenorGuitar.silent,3,2,TenorGuitar.silent]
+  }
+
+tenorGuitarHiddenByBarre :: TenorGuitar.ChordShape
+tenorGuitarHiddenByBarre =
+  { name : "G"
+  , firstFretOffset: 0
+  , barre : Just { stringNumber : 0, fretNumber : 3 }
+  , fingering : [Guitar.silent,5,4,2]
+  }
 
 bassG :: Bass.ChordShape
 bassG =
