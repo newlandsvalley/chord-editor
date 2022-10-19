@@ -40,12 +40,12 @@ component =
           [ HP.class_ (H.ClassName "menu") ]
           [ HH.li_
               [ HH.a
-                  [ HP.href "#/guitar" ]
+                  [ HP.href "#/frettedInstrument/guitar" ]
                   [ HH.text "Guitar" ]
               ]
           , HH.li_
               [ HH.a
-                  [ HP.href "#/tenorguitar" ]
+                  [ HP.href "#/frettedInstrument/tenorGuitar" ]
                   [ HH.text "Tenor Guitar" ]
               ]
           , HH.li_

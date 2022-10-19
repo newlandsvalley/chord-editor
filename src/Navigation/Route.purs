@@ -7,14 +7,17 @@ import Prelude hiding ((/))
 
 import Data.Generic.Rep (class Generic)
 import Data.Show.Generic (genericShow)
-import Routing.Duplex (RouteDuplex', root)
+import Routing.Duplex (RouteDuplex', as, root, segment)
 import Routing.Duplex.Generic (noArgs, sum)
 import Routing.Duplex.Generic.Syntax ((/))
+import FrettedInstrument.Types (FrettedInstrumentExample, exampleFromString, exampleToString)
+
+frettedInstrumentExample :: RouteDuplex' String -> RouteDuplex' FrettedInstrumentExample
+frettedInstrumentExample = as exampleToString exampleFromString
 
 data Route
   = Home
-  | Guitar
-  | TenorGuitar
+  | FrettedInstrument FrettedInstrumentExample
   | Bass
   | Piano
 
@@ -29,8 +32,7 @@ instance showRoute :: Show Route where
 routeCodec :: RouteDuplex' Route
 routeCodec = root $ sum
   { "Home": noArgs
-  , "Guitar": "guitar" / noArgs
-  , "TenorGuitar": "tenorguitar" / noArgs
+  , "FrettedInstrument": "frettedInstrument" /  (frettedInstrumentExample segment)
   , "Bass": "bass" / noArgs
   , "Piano": "piano" / noArgs
   }

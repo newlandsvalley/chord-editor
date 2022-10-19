@@ -13,10 +13,12 @@ import Navigation.Route (Route(..), routeCodec)
 import Routing.Duplex as RD
 import Routing.Hash (getHash)
 import Navigation.Navigate (class Navigate, navigate)
-import Guitar.Page as Guitar
-import TenorGuitar.Page as TenorGuitar
 import Bass.Page as Bass
 import Piano.Page as Piano
+import FrettedInstrument.Types (FrettedInstrumentConfig, FrettedInstrumentExample(..))
+import FrettedInstrument.Page as FrettedInstrument
+import FrettedInstrument.Guitar.Config (config) as Guitar
+import FrettedInstrument.TenorGuitar.Config (config) as TenorGuitar
 import Home.Page as Home
 import Type.Proxy (Proxy(..))
 
@@ -36,8 +38,7 @@ data Action
 
 type ChildSlots =
   ( home :: OpaqueSlot Unit
-  , guitar :: Guitar.Slot Unit
-  , tenorguitar :: TenorGuitar.Slot Unit
+  , frettedInstrument :: FrettedInstrument.Slot Unit
   , bass :: Bass.Slot Unit
   , piano :: Piano.Slot Unit
   )
@@ -77,10 +78,11 @@ component =
     Just r -> case r of
       Home ->
         HH.slot (Proxy :: _ "home") unit Home.component unit absurd
-      Guitar ->
-        HH.slot (Proxy :: _ "guitar") unit Guitar.component unit absurd
-      TenorGuitar ->
-        HH.slot (Proxy :: _ "tenorguitar") unit TenorGuitar.component unit absurd
+      FrettedInstrument example -> 
+        let 
+          config = getFrettedInstrumentConfig example
+        in 
+          HH.slot (Proxy :: _ "frettedInstrument") unit FrettedInstrument.component { config } absurd
       Piano ->
         HH.slot (Proxy :: _ "piano") unit Piano.component unit absurd
       Bass ->
@@ -88,3 +90,14 @@ component =
 
     Nothing ->
       HH.div_ [ HH.text "Oh no! That page wasn't found." ]
+
+-- | get the configuration of a prticular fretted instrument example
+getFrettedInstrumentConfig :: FrettedInstrumentExample -> FrettedInstrumentConfig
+getFrettedInstrumentConfig name = 
+  case name of 
+    Guitar -> 
+      Guitar.config 
+    TenorGuitar -> 
+      TenorGuitar.config 
+
+    
