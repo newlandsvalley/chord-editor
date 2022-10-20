@@ -10,10 +10,10 @@ import Data.List.NonEmpty (singleton)
 import Data.Maybe (Maybe(..))
 import Data.Validation.Semigroup (validation)
 import Effect (Effect)
-import Guitar.Types as Guitar
-import Guitar.Validation (validate, validateJson) as GVAL
-import TenorGuitar.Types as TenorGuitar
-import TenorGuitar.Validation (validate, validateJson) as TGVAL
+import FrettedInstrument.Types as FrettedInstrument
+import FrettedInstrument.Validation (validate, validateJson) as FIVAL
+import FrettedInstrument.Guitar.Config (config) as Guitar
+import FrettedInstrument.TenorGuitar.Config (config) as TenorGuitar
 import Piano.Types as Piano
 import Piano.Validation (validate, validateJson) as PVAL
 import Prelude (($), (<>), Unit, const, discard, negate)
@@ -50,73 +50,73 @@ guitarSuite :: Free TestF Unit
 guitarSuite =
   suite "guitar serialization" do
     test "write A chord" do
-      Assert.equal guitarAJSON $ writeGuitar guitarA
+      Assert.equal guitarAJSON $ writeFrettedInstrument guitarA
     test "write F chord" do
-      Assert.equal guitarFJSON $ writeGuitar guitarF
+      Assert.equal guitarFJSON $ writeFrettedInstrument guitarF
     test "read A chord" do
       validation (const $ failure "successful validation expected")
         (Assert.equal guitarA)
-        (GVAL.validateJson guitarAJSON)
+        (FIVAL.validateJson Guitar.config guitarAJSON)
     test "read F chord" do
       validation (const $ failure "successful validation expected")
         (Assert.equal guitarF)
-        (GVAL.validateJson guitarFJSON)
+        (FIVAL.validateJson Guitar.config guitarFJSON)
     test "read bad JSON" do
       validation (Assert.equal $ singleton "Not a recognisable guitar chord format.")
         (const $ failure "bad JSON expected")
-        (GVAL.validateJson badJSON)
+        (FIVAL.validateJson Guitar.config badJSON)
     test "reject bad finger position" do
       validation (Assert.equal $ singleton "Finger position 50 is out of range.")
         (const $ failure "bad fingering expected")
-        (GVAL.validate guitarBadFinger)
+        (FIVAL.validate Guitar.config guitarBadFinger)
     test "reject bad first fret offset" do
       validation (Assert.equal $ singleton "First fret offset should be between 0 and 27.")
         (const $ failure "bad fret offset expected")
-        (GVAL.validate guitarBadFretOffset)
+        (FIVAL.validate Guitar.config guitarBadFretOffset)
     test "reject bad string number in barre" do
       validation (Assert.equal $ singleton "Invalid string number of 7 in the barré.")
         (const $ failure "bad barre expected")
-        (GVAL.validate guitarBadBarre)
+        (FIVAL.validate Guitar.config guitarBadBarre)
     test "reject fingering hidden by barre" do
       validation (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
         (const $ failure "hidden by barre expected")
-        (GVAL.validate guitarHiddenByBarre)
+        (FIVAL.validate Guitar.config guitarHiddenByBarre)
 
 tenorGuitarSuite :: Free TestF Unit
 tenorGuitarSuite =
   suite "tenor guitar serialization" do
     test "write C chord" do
-      Assert.equal tenorguitarCJSON $ writeTenorGuitar tenorguitarC
+      Assert.equal tenorguitarCJSON $ writeFrettedInstrument tenorguitarC
     test "write F chord" do
-      Assert.equal tenorguitarFJSON $ writeTenorGuitar tenorguitarF
+      Assert.equal tenorguitarFJSON $ writeFrettedInstrument tenorguitarF
     test "read C chord" do
       validation (const $ failure "successful validation expected")
         (Assert.equal tenorguitarC)
-        (TGVAL.validateJson tenorguitarCJSON)
+        (FIVAL.validateJson TenorGuitar.config tenorguitarCJSON)
     test "read F chord" do
       validation (const $ failure "successful validation expected")
         (Assert.equal tenorguitarF)
-        (TGVAL.validateJson tenorguitarFJSON)
+        (FIVAL.validateJson TenorGuitar.config tenorguitarFJSON)
     test "read bad JSON" do
       validation (Assert.equal $ singleton "Not a recognisable tenor guitar chord format.")
         (const $ failure "bad JSON expected")
-        (TGVAL.validateJson badJSON)
+        (FIVAL.validateJson TenorGuitar.config badJSON)
     test "reject bad finger position" do
       validation (Assert.equal $ singleton "Finger position 50 is out of range.")
         (const $ failure "bad fingering expected")
-        (TGVAL.validate tenorGuitarBadFinger)
+        (FIVAL.validate TenorGuitar.config tenorGuitarBadFinger)
     test "reject bad first fret offset" do
       validation (Assert.equal $ singleton "First fret offset should be between 0 and 20.")
         (const $ failure "bad fret offset expected")
-        (TGVAL.validate tenorGuitarBadFretOffset)
+        (FIVAL.validate TenorGuitar.config tenorGuitarBadFretOffset)
     test "reject bad string number in barre" do
       validation (Assert.equal $ singleton "Invalid string number of 7 in the barré.")
         (const $ failure "bad barre expected")
-        (TGVAL.validate tenorGuitarBadBarre)
+        (FIVAL.validate TenorGuitar.config tenorGuitarBadBarre)
     test "reject fingering hidden by barre" do
       validation (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
         (const $ failure "hidden by barre expected")
-        (TGVAL.validate tenorGuitarHiddenByBarre)
+        (FIVAL.validate TenorGuitar.config tenorGuitarHiddenByBarre)
 
 bassSuite :: Free TestF Unit
 bassSuite =
@@ -160,52 +160,52 @@ pianoBadFinger =
   , fingering : [5,9,24]
   }
 
-guitarA :: Guitar.ChordShape
+guitarA :: FrettedInstrument.ChordShape
 guitarA =
   { name : "A"
   , firstFretOffset: 0
   , barre : Nothing
-  , fingering :   [Guitar.open,Guitar.open,2,2,2,Guitar.open]
+  , fingering :   [FrettedInstrument.open,FrettedInstrument.open,2,2,2,FrettedInstrument.open]
   }
 
-guitarF :: Guitar.ChordShape
+guitarF :: FrettedInstrument.ChordShape
 guitarF =
   { name : "F"
   , firstFretOffset: 0
   , barre : Just { stringNumber : 0, fretNumber : 1 }
-  , fingering : [Guitar.silent,3,2,2,Guitar.silent,Guitar.silent]
+  , fingering : [FrettedInstrument.silent,3,2,2,FrettedInstrument.silent,FrettedInstrument.silent]
   }
 
-guitarBadFinger :: Guitar.ChordShape
+guitarBadFinger :: FrettedInstrument.ChordShape
 guitarBadFinger =
   { name : "F"
   , firstFretOffset: 0
   , barre : Just { stringNumber : 0, fretNumber : 1 }
-  , fingering : [Guitar.silent,50,2,2,Guitar.silent,Guitar.silent]
+  , fingering : [FrettedInstrument.silent,50,2,2,FrettedInstrument.silent,FrettedInstrument.silent]
   }
 
-guitarBadFretOffset :: Guitar.ChordShape
+guitarBadFretOffset :: FrettedInstrument.ChordShape
 guitarBadFretOffset =
   { name : "F"
   , firstFretOffset: 50
   , barre : Just { stringNumber : 0, fretNumber : 1 }
-  , fingering : [Guitar.silent,3,2,2,Guitar.silent,Guitar.silent]
+  , fingering : [FrettedInstrument.silent,3,2,2,FrettedInstrument.silent,FrettedInstrument.silent]
   }
 
-guitarBadBarre :: Guitar.ChordShape
+guitarBadBarre :: FrettedInstrument.ChordShape
 guitarBadBarre =
   { name : "F"
   , firstFretOffset: 0
   , barre : Just { stringNumber : 7, fretNumber : 1 }
-  , fingering : [Guitar.silent,3,2,2,Guitar.silent,Guitar.silent]
+  , fingering : [FrettedInstrument.silent,3,2,2,FrettedInstrument.silent,FrettedInstrument.silent]
   }
 
-guitarHiddenByBarre :: Guitar.ChordShape
+guitarHiddenByBarre :: FrettedInstrument.ChordShape
 guitarHiddenByBarre =
   { name : "G"
   , firstFretOffset: 0
   , barre : Just { stringNumber : 0, fretNumber : 3 }
-  , fingering : [Guitar.silent,5,4,2,Guitar.silent,Guitar.silent]
+  , fingering : [FrettedInstrument.silent,5,4,2,FrettedInstrument.silent,FrettedInstrument.silent]
   }
 
 guitarAJSON :: String
@@ -216,20 +216,20 @@ guitarFJSON :: String
 guitarFJSON =
   """{"name":"F","firstFretOffset":0,"fingering":[-1,3,2,2,-1,-1],"barre":{"stringNumber":0,"fretNumber":1}}"""
 
-tenorguitarC :: TenorGuitar.ChordShape
+tenorguitarC :: FrettedInstrument.ChordShape
 tenorguitarC =
   { name : "C"
   , firstFretOffset: 0
   , barre : Nothing
-  , fingering :   [TenorGuitar.open,TenorGuitar.open,2,3]
+  , fingering :   [FrettedInstrument.open,FrettedInstrument.open,2,3]
   }
 
-tenorguitarF :: TenorGuitar.ChordShape
+tenorguitarF :: FrettedInstrument.ChordShape
 tenorguitarF =
   { name : "F"
   , firstFretOffset: 0
   , barre : Nothing
-  , fingering : [TenorGuitar.open,2,3,TenorGuitar.open]
+  , fingering : [FrettedInstrument.open,2,3,FrettedInstrument.open]
   }
 
 tenorguitarCJSON :: String
@@ -240,36 +240,36 @@ tenorguitarFJSON :: String
 tenorguitarFJSON =
   """{"name":"F","firstFretOffset":0,"fingering":[0,2,3,0]}"""
 
-tenorGuitarBadFinger :: TenorGuitar.ChordShape
+tenorGuitarBadFinger :: FrettedInstrument.ChordShape
 tenorGuitarBadFinger =
   { name : "F"
   , firstFretOffset: 0
   , barre : Just { stringNumber : 0, fretNumber : 1 }
-  , fingering : [TenorGuitar.silent,50,2,Guitar.silent]
+  , fingering : [FrettedInstrument.silent,50,2,FrettedInstrument.silent]
   }
 
-tenorGuitarBadFretOffset :: TenorGuitar.ChordShape
+tenorGuitarBadFretOffset :: FrettedInstrument.ChordShape
 tenorGuitarBadFretOffset =
   { name : "F"
   , firstFretOffset: 50
   , barre : Just { stringNumber : 0, fretNumber : 1 }
-  , fingering : [TenorGuitar.silent,3,2,TenorGuitar.silent]
+  , fingering : [FrettedInstrument.silent,3,2,FrettedInstrument.silent]
   }
 
-tenorGuitarBadBarre :: TenorGuitar.ChordShape
+tenorGuitarBadBarre :: FrettedInstrument.ChordShape
 tenorGuitarBadBarre =
   { name : "F"
   , firstFretOffset: 0
   , barre : Just { stringNumber : 7, fretNumber : 1 }
-  , fingering : [TenorGuitar.silent,3,2,TenorGuitar.silent]
+  , fingering : [FrettedInstrument.silent,3,2,FrettedInstrument.silent]
   }
 
-tenorGuitarHiddenByBarre :: TenorGuitar.ChordShape
+tenorGuitarHiddenByBarre :: FrettedInstrument.ChordShape
 tenorGuitarHiddenByBarre =
   { name : "G"
   , firstFretOffset: 0
   , barre : Just { stringNumber : 0, fretNumber : 3 }
-  , fingering : [Guitar.silent,5,4,2]
+  , fingering : [FrettedInstrument.silent,5,4,2]
   }
 
 bassG :: Bass.ChordShape

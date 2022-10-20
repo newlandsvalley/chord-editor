@@ -7,6 +7,7 @@ import Data.Array (filter, length, mapWithIndex)
 import Data.Foldable (intercalate)
 import Data.Either (either)
 import Data.Maybe (Maybe(..))
+import Data.String.Common (toLower)
 import Data.Validation.Semigroup
 import FrettedInstrument.Types
   ( ChordShape
@@ -28,7 +29,7 @@ validateJson config json =
     (validate config)
     (readFrettedInstrument json)
   where
-    message = "Not a recognisable " <> config.name <> " chord format."
+    message = "Not a recognisable " <> (toLower config.name) <> " chord format."
 
 -- | validate a prospective fretted instrument chord
 validate :: FrettedInstrumentConfig -> ChordShape -> Validated ChordShape
