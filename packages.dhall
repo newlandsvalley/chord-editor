@@ -105,8 +105,8 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.15.0-20220510/packages.dhall
-        sha256:0b0d4db1f2f0acd3b37fa53220644ac6f64cf9b5d0226fd097c0593df563d5be
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.4-20221018/packages.dhall
+        sha256:b1db2e4a17260ace8d17858602f8c56f460982d6e404818d7f6cb9f053324bb1
 
 in  upstream
   with halogen-components =
@@ -121,10 +121,10 @@ in  upstream
       ]
     , repo =
         "https://github.com/newlandsvalley/purescript-halogen-components.git"
-    , version = "ps015"
+    , version = "v0.6.0"
     }
   with drawing =
-    { dependencies =  
+    { dependencies =
       [ "canvas"
       , "colors"
       , "console"
@@ -137,10 +137,10 @@ in  upstream
       , "prelude"
       ]
     , repo = "https://github.com/newlandsvalley/purescript-drawing.git"
-    , version = "ps015"
+    , version = "7db550ceff2d4d98093ba87a915dfe76dcd3b4ab"
     }
-  with optparse = 
-    { dependencies = 
+  with optparse =
+    { dependencies =
       [ "prelude"
       , "effect"
       , "exitcodes"

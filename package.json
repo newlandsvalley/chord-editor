@@ -4,7 +4,8 @@
     "build": "spago bundle-app --to dist/chordeditor.js",
     "test": "spago -x ./test.dhall test"
   },
-  "devDependencies": { 
+  "devDependencies": {
+    "big-integer": "^1.6.51",
     "esbuild": "^0.14.38",
     "purescript": "^0.15.4",
     "purescript-psa": "^0.5.1",
