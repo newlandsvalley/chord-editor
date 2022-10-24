@@ -24,18 +24,19 @@ instance showFrettedInstrumentExample :: Show FrettedInstrumentExample where
 derive instance eqFrettedInstrumentExample :: Eq FrettedInstrumentExample
 derive instance ordFrettedInstrumentExample :: Ord FrettedInstrumentExample
 
--- | 
 readExample :: String -> Maybe FrettedInstrumentExample
 readExample genreStr =
   case genreStr of
     "guitar"    -> Just Guitar
     "tenorguitar"  -> Just TenorGuitar
     _ -> Nothing
-
+ 
+-- | we have decided to represent all instrument names in URIs as lower-case names
 exampleToString :: FrettedInstrumentExample -> String
 exampleToString =
   toLower <<< show
 
+-- | try to read a string and create a fretted instrument example
 exampleFromString :: String -> Either String FrettedInstrumentExample
 exampleFromString s =
   case (readExample s) of
@@ -81,10 +82,10 @@ data MouseAction
   | OneFret FingeredString
   | NoFret
 
--- | The editable chord shape of the guitar
+-- | The editable chord shape of the fretted instrument
 type ChordShape =
   { name :: String -- the chord name
-  , firstFretOffset :: Int -- which fret on the guitar does fret 1 represent
+  , firstFretOffset :: Int -- which fret on the instrument does fret 1 represent
   , barre :: Barre -- a barré at this fret from this string to
   -- the final string (5)
   , fingering :: Fingering -- the fingering

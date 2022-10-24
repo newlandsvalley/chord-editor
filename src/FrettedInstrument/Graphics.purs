@@ -86,12 +86,14 @@ stringWidth :: Number
 stringWidth =
   2.0
 
+-- | draw the nut
 nut :: FrettedInstrumentConfig -> Drawing
 nut config =
   filled
     (fillColor $ graytone 0.8)
     (rectangle nutxOffset nutyOffset ((neckWidth config) + stringWidth) nutDepth)
 
+-- | draw a single fret
 fret :: FrettedInstrumentConfig -> Int -> Drawing
 fret config n =
   let
@@ -111,8 +113,10 @@ frets config =
   in
     foldl f mempty fretNums
 
-aString :: Int -> Drawing
-aString n =
+
+-- | draw a string
+string :: Int -> Drawing
+string n =
   let
     xOffset = nutxOffset + toNumber n * stringSeparation
     yOffset = nutDepth + nutyOffset
@@ -127,7 +131,7 @@ strings config =
   let
     stringNums = range 0 (config.stringCount - 1)
     f :: Drawing -> Int -> Drawing
-    f acc n = acc <> (aString n)
+    f acc n = acc <> (string n)
   in
     foldl f mempty stringNums
 
