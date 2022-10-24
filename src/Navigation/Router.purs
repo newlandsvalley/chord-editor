@@ -77,16 +77,16 @@ component =
   render { route } = case route of
     Just r -> case r of
       Home ->
-        HH.slot (Proxy :: _ "home") unit Home.component unit absurd
+        HH.slot_ (Proxy :: _ "home") unit Home.component unit
       FrettedInstrument example -> 
         let 
           config = getFrettedInstrumentConfig example
         in 
-          HH.slot (Proxy :: _ "frettedInstrument") unit FrettedInstrument.component { config } absurd
+          HH.slot_ (Proxy :: _ "frettedInstrument") unit FrettedInstrument.component { config }
       Piano ->
-        HH.slot (Proxy :: _ "piano") unit Piano.component unit absurd
+        HH.slot_ (Proxy :: _ "piano") unit Piano.component unit
       Bass ->
-        HH.slot (Proxy :: _ "bass") unit Bass.component unit absurd
+        HH.slot_ (Proxy :: _ "bass") unit Bass.component unit
 
     Nothing ->
       HH.div_ [ HH.text "Oh no! That page wasn't found." ]
