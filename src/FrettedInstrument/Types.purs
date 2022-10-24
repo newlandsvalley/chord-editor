@@ -29,8 +29,7 @@ readExample :: String -> Maybe FrettedInstrumentExample
 readExample genreStr =
   case genreStr of
     "guitar"    -> Just Guitar
-    "tenor Guitar"  -> Just TenorGuitar
-    "tenorGuitar"  -> Just TenorGuitar
+    "tenorguitar"  -> Just TenorGuitar
     _ -> Nothing
 
 exampleToString :: FrettedInstrumentExample -> String

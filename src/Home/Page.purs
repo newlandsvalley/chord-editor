@@ -45,7 +45,7 @@ component =
               ]
           , HH.li_
               [ HH.a
-                  [ HP.href "#/frettedInstrument/tenorGuitar" ]
+                  [ HP.href "#/frettedInstrument/tenorguitar" ]
                   [ HH.text "Tenor Guitar" ]
               ]
           , HH.li_
