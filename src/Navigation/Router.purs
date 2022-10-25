@@ -19,6 +19,7 @@ import FrettedInstrument.Types (FrettedInstrumentConfig, FrettedInstrumentName(.
 import FrettedInstrument.Page as FrettedInstrument
 import FrettedInstrument.Guitar.Config (config) as Guitar
 import FrettedInstrument.TenorGuitar.Config (config) as TenorGuitar
+import FrettedInstrument.Ukulele.Config (config) as Ukulele
 import Home.Page as Home
 import Type.Proxy (Proxy(..))
 
@@ -99,5 +100,7 @@ getFrettedInstrumentConfig name =
       Guitar.config 
     TenorGuitar -> 
       TenorGuitar.config 
+    Ukulele -> 
+      Ukulele.config 
 
     

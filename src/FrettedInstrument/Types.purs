@@ -19,11 +19,13 @@ import Data.Midi.Instrument (InstrumentName)
 data FrettedInstrumentName =
     Guitar
   | TenorGuitar
+  | Ukulele
 
 -- | show is used in displays of the name
 instance showFrettedInstrumentName :: Show FrettedInstrumentName where
   show Guitar = "Guitar"
   show TenorGuitar  = "Tenor Guitar"
+  show Ukulele  = "Ukulele"
 
 derive instance eqFrettedInstrumentName :: Eq FrettedInstrumentName
 derive instance ordFrettedInstrumentName :: Ord FrettedInstrumentName
@@ -49,6 +51,7 @@ instrumentNameFromURIString s =
     case nameStr of
       "guitar"    -> Just Guitar
       "tenorguitar"  -> Just TenorGuitar
+      "ukulele"  -> Just Ukulele
       _ -> Nothing
 
 
