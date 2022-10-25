@@ -28,6 +28,7 @@ You can edit this file as you like.
   , "routing"
   , "routing-duplex"
   , "soundfonts"
+  , "stringutils"
   , "strings"
   , "transformers"
   , "tuples"

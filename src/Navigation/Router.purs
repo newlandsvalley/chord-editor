@@ -15,7 +15,7 @@ import Routing.Hash (getHash)
 import Navigation.Navigate (class Navigate, navigate)
 import Bass.Page as Bass
 import Piano.Page as Piano
-import FrettedInstrument.Types (FrettedInstrumentConfig, FrettedInstrumentExample(..))
+import FrettedInstrument.Types (FrettedInstrumentConfig, FrettedInstrumentName(..))
 import FrettedInstrument.Page as FrettedInstrument
 import FrettedInstrument.Guitar.Config (config) as Guitar
 import FrettedInstrument.TenorGuitar.Config (config) as TenorGuitar
@@ -92,7 +92,7 @@ component =
       HH.div_ [ HH.text "Oh no! That page wasn't found." ]
 
 -- | get the configuration of a prticular fretted instrument example
-getFrettedInstrumentConfig :: FrettedInstrumentExample -> FrettedInstrumentConfig
+getFrettedInstrumentConfig :: FrettedInstrumentName -> FrettedInstrumentConfig
 getFrettedInstrumentConfig name = 
   case name of 
     Guitar -> 

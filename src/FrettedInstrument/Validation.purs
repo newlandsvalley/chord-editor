@@ -29,7 +29,7 @@ validateJson config json =
     (validate config)
     (readFrettedInstrument json)
   where
-    message = "Not a recognisable " <> (toLower config.name) <> " chord format."
+    message = "Not a recognisable " <> (toLower $ show config.name) <> " chord format."
 
 -- | validate a prospective fretted instrument chord
 validate :: FrettedInstrumentConfig -> ChordShape -> Validated ChordShape

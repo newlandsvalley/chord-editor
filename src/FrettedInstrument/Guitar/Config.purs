@@ -1,12 +1,11 @@
 module FrettedInstrument.Guitar.Config where
 
-import FrettedInstrument.Types (FrettedInstrumentConfig, open)
+import FrettedInstrument.Types (FrettedInstrumentConfig, FrettedInstrumentName(Guitar), open)
 import Data.Midi.Instrument (InstrumentName(AcousticGuitarSteel))
 
 config :: FrettedInstrumentConfig 
 config = 
-  { name: "Guitar"    
-  , safeFileName: "guitar"
+  { name: Guitar 
   , stringCount: 6
   , maxFrets: 27
   , openStrings:  [ open, open, open, open, open, open ]

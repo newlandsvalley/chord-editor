@@ -10,14 +10,14 @@ import Data.Show.Generic (genericShow)
 import Routing.Duplex (RouteDuplex', as, root, segment)
 import Routing.Duplex.Generic (noArgs, sum)
 import Routing.Duplex.Generic.Syntax ((/))
-import FrettedInstrument.Types (FrettedInstrumentExample, exampleFromString, exampleToString)
+import FrettedInstrument.Types (FrettedInstrumentName, instrumentNameFromURIString, instrumentNameToURIString)
 
-frettedInstrumentExample :: RouteDuplex' String -> RouteDuplex' FrettedInstrumentExample
-frettedInstrumentExample = as exampleToString exampleFromString
+frettedInstrumentName :: RouteDuplex' String -> RouteDuplex' FrettedInstrumentName
+frettedInstrumentName = as instrumentNameToURIString instrumentNameFromURIString 
 
 data Route
   = Home
-  | FrettedInstrument FrettedInstrumentExample
+  | FrettedInstrument FrettedInstrumentName
   | Bass
   | Piano
 
@@ -32,7 +32,7 @@ instance showRoute :: Show Route where
 routeCodec :: RouteDuplex' Route
 routeCodec = root $ sum
   { "Home": noArgs
-  , "FrettedInstrument": "frettedInstrument" /  (frettedInstrumentExample segment)
+  , "FrettedInstrument": "frettedInstrument" /  (frettedInstrumentName segment)
   , "Bass": "bass" / noArgs
   , "Piano": "piano" / noArgs
   }

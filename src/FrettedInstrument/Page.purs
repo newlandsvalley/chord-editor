@@ -122,7 +122,7 @@ component =
     HH.div_
       [ HH.h1
           [ HP.class_ (H.ClassName "center") ]
-          [ HH.text (state.config.name <> " Chord Editor") ]
+          [ HH.text (show state.config.name <> " Chord Editor") ]
       , HH.canvas
           [ HP.id "canvas"
           , HE.onMouseDown canvasMouseDownHandler
@@ -387,7 +387,9 @@ component =
         originalCanvas = unsafePartial (fromJust state.mCanvas)
         mimeType = toMimeType format
         scaleFactor = toNumber state.exportScale / 100.0
-        fileName = (safeName state.chordShape.name) <> "_" <> state.config.safeFileName
+        fileName = (safeName state.chordShape.name) 
+                   <> "_" 
+                   <> (instrumentNameToFileName state.config.name)
       canvas <- H.liftEffect $ scaleCanvas originalCanvas scaleFactor
       _ <- H.liftEffect $ exportAs canvas fileName mimeType
       pure unit
@@ -405,7 +407,10 @@ component =
     Save -> do
       state <- H.get
       let
-        name = (safeName state.chordShape.name) <> "_" <> state.config.safeFileName <> ".json"
+        name = (safeName state.chordShape.name) 
+                <> "_" 
+                <> (instrumentNameToFileName state.config.name) 
+                <> ".json"
         contents = writeFrettedInstrument state.chordShape
       _ <- H.liftEffect $ saveTextFile { name, contents }
       pure unit

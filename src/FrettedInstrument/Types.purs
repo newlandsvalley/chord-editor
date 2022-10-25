@@ -8,42 +8,58 @@ module FrettedInstrument.Types where
 import Prelude
 import Data.Maybe (Maybe(..))
 import Data.Either (Either(..))
-import Data.String.Common (toLower)
+import Data.String.Common (replaceAll, toLower)
+import Data.String.Pattern (Pattern(..), Replacement(..))
+import Data.String.Utils (filter)
 import Data.Midi.Instrument (InstrumentName)
 
--- | all this stuff about FrettedInstrumentExample is just to support routing
--- | where we use a URI of `FrettedInstrument` followed by the actual example
-data FrettedInstrumentExample =
+-- | An enumeration of each fretted instrument we support
+-- | much of this stuff about FrettedInstrumentName is to support routing
+-- | where we use a URI of `FrettedInstrument` followed by the actual name
+data FrettedInstrumentName =
     Guitar
   | TenorGuitar
 
-instance showFrettedInstrumentExample :: Show FrettedInstrumentExample where
+-- | show is used in displays of the name
+instance showFrettedInstrumentName :: Show FrettedInstrumentName where
   show Guitar = "Guitar"
-  show TenorGuitar  = "TenorGuitar"
+  show TenorGuitar  = "Tenor Guitar"
 
-derive instance eqFrettedInstrumentExample :: Eq FrettedInstrumentExample
-derive instance ordFrettedInstrumentExample :: Ord FrettedInstrumentExample
-
-readExample :: String -> Maybe FrettedInstrumentExample
-readExample genreStr =
-  case genreStr of
-    "guitar"    -> Just Guitar
-    "tenorguitar"  -> Just TenorGuitar
-    _ -> Nothing
+derive instance eqFrettedInstrumentName :: Eq FrettedInstrumentName
+derive instance ordFrettedInstrumentName :: Ord FrettedInstrumentName
  
--- | we have decided to represent all instrument names in URIs as lower-case names
-exampleToString :: FrettedInstrumentExample -> String
-exampleToString =
-  toLower <<< show
+-- | we represent all instrument names in URIs as lower-case names
+-- | with blanks removed from the 'show' name
+instrumentNameToURIString :: FrettedInstrumentName -> String
+instrumentNameToURIString =
+  toLower <<< (filter (\s -> s /= " ")) <<< show
 
--- | try to read a string and create a fretted instrument example
-exampleFromString :: String -> Either String FrettedInstrumentExample
-exampleFromString s =
-  case (readExample s) of
-    Just example ->
-      Right example
+-- | try to read a URI string component and create a FrettedInstrumentName
+instrumentNameFromURIString :: String -> Either String FrettedInstrumentName
+instrumentNameFromURIString s =
+  case (readInstrumentName s) of
+    Just name ->
+      Right name
     Nothing ->
       Left $ "Not a known fretted instrument: " <> s
+
+  where 
+  readInstrumentName :: String -> Maybe FrettedInstrumentName
+  readInstrumentName nameStr =
+    case nameStr of
+      "guitar"    -> Just Guitar
+      "tenorguitar"  -> Just TenorGuitar
+      _ -> Nothing
+
+
+-- | we represent all instrument names in file names as lower-case names
+-- | with blanks replaced by an underscore
+instrumentNameToFileName :: FrettedInstrumentName -> String
+instrumentNameToFileName =
+  toLower <<< replaceBlanks <<< show
+
+  where 
+    replaceBlanks = replaceAll (Pattern " ") (Replacement "_")
 
 -- | a finger position on a string
 -- | n < 0  : String is silent
@@ -86,15 +102,13 @@ data MouseAction
 type ChordShape =
   { name :: String -- the chord name
   , firstFretOffset :: Int -- which fret on the instrument does fret 1 represent
-  , barre :: Barre -- a barré at this fret from this string to
-  -- the final string (5)
+  , barre :: Barre -- a barré at this fret from this string to the final string (5)
   , fingering :: Fingering -- the fingering
   }
 
 -- | the variable attributes of differing fretted instruments
 type FrettedInstrumentConfig = 
-  { name :: String                   -- the fretted instrument name
-  , safeFileName :: String           -- the instrument name as used in file names
+  { name :: FrettedInstrumentName    -- the fretted instrument name
   , stringCount :: Int               -- the number of strings
   , maxFrets :: Int                  -- the maximum number of (sounded) frets
   , openStrings :: Fingering         -- fingering for the open strings (up to stringCount of open)
