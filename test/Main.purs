@@ -14,6 +14,7 @@ import FrettedInstrument.Types as FrettedInstrument
 import FrettedInstrument.Validation (validate, validateJson) as FIVAL
 import FrettedInstrument.Guitar.Config (config) as Guitar
 import FrettedInstrument.TenorGuitar.Config (config) as TenorGuitar
+import FrettedInstrument.Ukulele.Config (config) as Ukulele
 import Piano.Types as Piano
 import Piano.Validation (validate, validateJson) as PVAL
 import Prelude (($), (<>), Unit, const, discard, negate)
@@ -26,6 +27,7 @@ main = runTest do
   pianoSuite
   guitarSuite
   tenorGuitarSuite
+  ukuleleSuite
   bassSuite
 
 pianoSuite :: Free TestF Unit
@@ -117,6 +119,42 @@ tenorGuitarSuite =
       validation (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
         (const $ failure "hidden by barre expected")
         (FIVAL.validate TenorGuitar.config tenorGuitarHiddenByBarre)
+
+ukuleleSuite :: Free TestF Unit
+ukuleleSuite =
+  suite "ukulele serialization" do
+    test "write C chord" do
+      Assert.equal ukuleleCJSON $ writeFrettedInstrument ukuleleC
+    test "write F chord" do
+      Assert.equal ukuleleFJSON $ writeFrettedInstrument ukuleleF
+    test "read C chord" do
+      validation (const $ failure "successful validation expected")
+        (Assert.equal ukuleleC)
+        (FIVAL.validateJson Ukulele.config ukuleleCJSON)
+    test "read F chord" do
+      validation (const $ failure "successful validation expected")
+        (Assert.equal ukuleleF)
+        (FIVAL.validateJson Ukulele.config ukuleleFJSON)
+    test "read bad JSON" do
+      validation (Assert.equal $ singleton "Not a recognisable ukulele chord format.")
+        (const $ failure "bad JSON expected")
+        (FIVAL.validateJson Ukulele.config badJSON)
+    test "reject bad finger position" do
+      validation (Assert.equal $ singleton "Finger position 50 is out of range.")
+        (const $ failure "bad fingering expected")
+        (FIVAL.validate Ukulele.config ukuleleBadFinger)
+    test "reject bad first fret offset" do
+      validation (Assert.equal $ singleton "First fret offset should be between 0 and 15.")
+        (const $ failure "bad fret offset expected")
+        (FIVAL.validate Ukulele.config ukuleleBadFretOffset)
+    test "reject bad string number in barre" do
+      validation (Assert.equal $ singleton "Invalid string number of 7 in the barré.")
+        (const $ failure "bad barre expected")
+        (FIVAL.validate Ukulele.config ukuleleBadBarre)
+    test "reject fingering hidden by barre" do
+      validation (Assert.equal $ singleton "Fingering for string 3 is hidden by the barré.")
+        (const $ failure "hidden by barre expected")
+        (FIVAL.validate Ukulele.config ukuleleHiddenByBarre)
 
 bassSuite :: Free TestF Unit
 bassSuite =
@@ -266,6 +304,63 @@ tenorGuitarBadBarre =
 
 tenorGuitarHiddenByBarre :: FrettedInstrument.ChordShape
 tenorGuitarHiddenByBarre =
+  { name : "G"
+  , firstFretOffset: 0
+  , barre : Just { stringNumber : 0, fretNumber : 3 }
+  , fingering : [FrettedInstrument.silent,5,4,2]
+  }
+
+-- uke
+ukuleleC :: FrettedInstrument.ChordShape
+ukuleleC =
+  { name : "C"
+  , firstFretOffset: 0
+  , barre : Nothing
+  , fingering :   [FrettedInstrument.open,FrettedInstrument.open,FrettedInstrument.open,3]
+  }
+
+ukuleleF :: FrettedInstrument.ChordShape
+ukuleleF =
+  { name : "F"
+  , firstFretOffset: 0
+  , barre : Nothing
+  , fingering : [2,FrettedInstrument.open,1,FrettedInstrument.open]
+  }
+
+ukuleleCJSON :: String
+ukuleleCJSON =
+  """{"name":"C","firstFretOffset":0,"fingering":[0,0,0,3]}"""
+
+ukuleleFJSON :: String
+ukuleleFJSON =
+  """{"name":"F","firstFretOffset":0,"fingering":[2,0,1,0]}"""
+
+ukuleleBadFinger :: FrettedInstrument.ChordShape
+ukuleleBadFinger =
+  { name : "F"
+  , firstFretOffset: 0
+  , barre : Just { stringNumber : 0, fretNumber : 1 }
+  , fingering : [FrettedInstrument.silent,50,2,FrettedInstrument.silent]
+  }
+
+ukuleleBadFretOffset :: FrettedInstrument.ChordShape
+ukuleleBadFretOffset =
+  { name : "F"
+  , firstFretOffset: 50
+  , barre : Just { stringNumber : 0, fretNumber : 1 }
+  , fingering : [FrettedInstrument.silent,3,2,FrettedInstrument.silent]
+  }
+
+ukuleleBadBarre :: FrettedInstrument.ChordShape
+ukuleleBadBarre =
+  { name : "F"
+  , firstFretOffset: 0
+  , barre : Just { stringNumber : 7, fretNumber : 1 }
+  , fingering : [FrettedInstrument.silent,3,2,FrettedInstrument.silent]
+  }
+
+ukuleleHiddenByBarre :: FrettedInstrument.ChordShape
+ukuleleHiddenByBarre =
   { name : "G"
   , firstFretOffset: 0
   , barre : Just { stringNumber : 0, fretNumber : 3 }

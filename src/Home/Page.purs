@@ -50,6 +50,11 @@ component =
               ]
           , HH.li_
               [ HH.a
+                  [ HP.href "#/frettedInstrument/ukulele" ]
+                  [ HH.text "Ukulele" ]
+              ]
+          , HH.li_
+              [ HH.a
                   [ HP.href "#/bass" ]
                   [ HH.text "Bass" ]
               ]
