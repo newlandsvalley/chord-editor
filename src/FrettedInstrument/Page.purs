@@ -328,6 +328,7 @@ component =
         _ <- H.modify
           ( \st -> st
               { mouseDownFinger = Nothing
+              , errorText = ""
               , pitches = []
               }
           )
@@ -401,7 +402,7 @@ component =
           (\errs -> state { errorText = foldl (<>) "" errs })
           (\chordShape -> state { chordShape = chordShape, errorText = "" })
           validated
-      _ <- H.put newState
+      _ <- H.put newState { errorText = "", pitches = [] }
       _ <- handleQuery (DisplayFingering unit)
       pure unit
     Save -> do
