@@ -99,7 +99,7 @@ component =
     { name: config.openStringsChordName
     , firstFretOffset: 0
     , barre: Nothing
-    , fingering: config.openStrings
+    , fingering: openStrings config.stringCount
     }
 
   initialState :: Input -> State

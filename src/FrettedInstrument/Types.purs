@@ -6,6 +6,7 @@ module FrettedInstrument.Types where
 -- | therefore the behaviour is different.
 
 import Prelude
+import Data.Array (replicate)
 import Data.Maybe (Maybe(..))
 import Data.Either (Either(..))
 import Data.String.Common (replaceAll, toLower)
@@ -86,6 +87,11 @@ silent = -1
 displayedFretCount :: Int
 displayedFretCount = 6
 
+-- | for each string in the instrument, mark the default finger position as open
+openStrings :: Int -> Fingering
+openStrings stringCount = 
+  replicate stringCount open
+
 -- | a fingered string
 type FingeredString =
   { stringNumber :: Int
@@ -114,10 +120,8 @@ type FrettedInstrumentConfig =
   { name :: FrettedInstrumentName    -- the fretted instrument name
   , stringCount :: Int               -- the number of strings
   , maxFrets :: Int                  -- the maximum number of (sounded) frets
-  , openStrings :: Fingering         -- fingering for the open strings (up to stringCount of open)
   , openStringsChordName :: String   -- the chord that is therefore produced on open strings
   , openStringMidiIds :: Array Int   -- the MIDI note number of each open string
   , instrumentName :: InstrumentName -- the instrument name of the MIDI SoundFont
-
   }
 
