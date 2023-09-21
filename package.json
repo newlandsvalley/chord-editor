@@ -6,9 +6,8 @@
   },
   "devDependencies": {
     "big-integer": "^1.6.51",
-    "esbuild": "^0.14.38",
-    "purescript": "^0.15.4",
-    "purescript-psa": "^0.5.1",
-    "spago": "^0.20.9"
+    "esbuild": "^0.14.54",
+    "purescript": "^0.15.10",
+    "spago": "^0.21.0"
   }
 }

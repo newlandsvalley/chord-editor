@@ -46,20 +46,21 @@ canvasWidth =
 
 canvasHeight :: Int
 canvasHeight =
-  round $ keyboardyOffset + whiteKeyLength + cellSize
+  round $ keyboardyOffset + whiteKeyLength + cellSize 
 
 -- | this is the basic size of a cell representing s single semitone
 cellSize :: Number
 cellSize =
   24.0
 
+-- the depth of the space dedicated to the title
 titleDepth :: Number
 titleDepth =
-  35.0
+  56.0
 
 keyboardyOffset :: Number
 keyboardyOffset =
-  2.0 * cellSize
+  3.0 * cellSize
 
 keyboardxOffset :: Number
 keyboardxOffset =
@@ -183,9 +184,9 @@ smallCircle colour xpos ypos =
 title :: String -> Drawing
 title name =
   let
-    theFont = font sansSerif 35 bold
+    theFont = font sansSerif 60 bold
     -- rough heuristic for the width in pixels
-    textWidth = (cellSize / 1.5) * (toNumber $ Str.length name)
+    textWidth = (cellSize * 1.10) * (toNumber $ Str.length name)
     -- roughly center
     titlexOffset = keyboardxOffset + ((keyboardWidth - textWidth) / 2.0)
   in
