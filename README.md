@@ -16,7 +16,7 @@ There is also support for ukulele, [tenor guitar](https://en.wikipedia.org/wiki/
 
 ![chord-diagram-piano](https://github.com/newlandsvalley/chord-builder/blob/master/F_piano.png)
 
-Try it out [here](http://www.tradtunedb.org.uk:8603/).
+Try it out [here](https://www.tradtunedb.org.uk:8603/).
 
 
 To build
